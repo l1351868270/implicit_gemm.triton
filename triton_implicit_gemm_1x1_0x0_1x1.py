@@ -100,10 +100,10 @@ def conv2d_kernel_1x1_1x1_0x0_1x1(
         x_ptrs = x_ptr + offs_x
         w_ptrs = w_ptr + offs_w
 
-        # a = tl.load(x_ptrs, mask=mask_x, other=0.0)
-        # b = tl.load(w_ptrs, mask=mask_w[:, None], other=0.0)
-        a = tl.load(a_ptrs, mask=offs_k[None, :] < GEMM_K - idx_k * BLOCK_SIZE_K, other=0.0)
-        b = tl.load(b_ptrs, mask=offs_k[:, None] < GEMM_K - idx_k * BLOCK_SIZE_K, other=0.0)
+        a = tl.load(x_ptrs, mask=mask_x, other=0.0)
+        b = tl.load(w_ptrs, mask=mask_w[:, None], other=0.0)
+        # a = tl.load(a_ptrs, mask=offs_k[None, :] < GEMM_K - idx_k * BLOCK_SIZE_K, other=0.0)
+        # b = tl.load(b_ptrs, mask=offs_k[:, None] < GEMM_K - idx_k * BLOCK_SIZE_K, other=0.0)
         accumulator = tl.dot(a, b, accumulator, out_dtype=tl.float32)
         a_ptrs += BLOCK_SIZE_K * stride_ak
         b_ptrs += BLOCK_SIZE_K * stride_bk
@@ -145,21 +145,6 @@ def triton_implicit_gemm_1x1_0x0_1x1(x: torch.Tensor, w: torch.Tensor, stride=(1
     )
     return y
 
-def triton_implicit_gemm_1x1_0x0_1x1_(x: torch.Tensor, w: torch.Tensor, stride=(1, 1), padding=(0, 0), dilation=(1, 1)):
-    N, C, H, W = x.shape
-    K, C, R, S = w.shape
-    U, V = stride
-    pad_h, pad_w = padding
-    dila_h, dila_w = dilation
-    P = (H + 2 * pad_h - dila_h * (R - 1) - 1) // U + 1
-    Q = (W + 2 * pad_w - dila_w * (S - 1) - 1) // V + 1
-    y = torch.empty((N, K, P, Q), device=x.device, dtype=torch.float16).to(memory_format=torch.channels_last)
-    GEMM_M = N * P * Q
-    GEMM_N = K
-    GEMM_K = C * R * S
-    grid = lambda META: (triton.cdiv(GEMM_M, META['BLOCK_SIZE_M']) * triton.cdiv(GEMM_N, META['BLOCK_SIZE_N']), )
-    conv2d_kernel_1x1_1x1_0x0_1x1[grid](x, w, y, N, C, H, W, K, P, Q, R, S, U, V, pad_h, pad_w, dila_h, dila_w, GEMM_M, GEMM_N, GEMM_K)
-    return y
 
 if __name__ == '__main__':
     torch.manual_seed(0)

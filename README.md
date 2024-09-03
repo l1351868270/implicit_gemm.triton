@@ -25,7 +25,9 @@ python triton_bench.py
 # cutlass_gemm
 
 ```
+cutlass version v3.5.1
+
+mkdir build
+make 
 
 ```
-
-git submodule add -b v3.5.1 https://github.com/NVIDIA/cutlass.git
