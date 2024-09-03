@@ -48,14 +48,18 @@ def get_autotune_config():
 )
 @triton.jit
 def conv2d_kernel(x_ptr, w_ptr, y_ptr, N, C, H, W, K, P, Q, R, S, U, V, pad_h, pad_w, dila_h, dila_w,
+                  GEMM_M, GEMM_N, GEMM_K,
                   BLOCK_SIZE_M: tl.constexpr, BLOCK_SIZE_N: tl.constexpr, BLOCK_SIZE_K: tl.constexpr, GROUP_SIZE_M: tl.constexpr):
-    pid = tl.program_id(0)
-    GEMM_M = N * P * Q
-    GEMM_K = R * S * C
-    GEMM_N = K
+    pid = tl.program_id(axis=0)
+    num_pid_m = tl.cdiv(GEMM_M, BLOCK_SIZE_M)
     num_pid_n = tl.cdiv(GEMM_N, BLOCK_SIZE_N)
-    pid_m = pid // num_pid_n
-    pid_n = pid % num_pid_n
+    num_pid_in_group = GROUP_SIZE_M * num_pid_n
+    group_id = pid // num_pid_in_group
+    first_pid_m = group_id * GROUP_SIZE_M
+    group_size_m = min(num_pid_m - first_pid_m, GROUP_SIZE_M)
+    pid_m = first_pid_m + ((pid % num_pid_in_group) % group_size_m)
+    pid_n = (pid % num_pid_in_group) // group_size_m
+
 
     gemm_i = (pid_m * BLOCK_SIZE_M + tl.arange(0, BLOCK_SIZE_M)) % GEMM_M
     gemm_j = (pid_n * BLOCK_SIZE_N + tl.arange(0, BLOCK_SIZE_N)) % GEMM_N
@@ -104,10 +108,10 @@ def triton_implicit_gemm(x: torch.Tensor, w: torch.Tensor, stride=(1, 1), paddin
     P = (H + 2 * pad_h - dila_h * (R - 1) - 1) // U + 1
     Q = (W + 2 * pad_w - dila_w * (S - 1) - 1) // V + 1
     y = torch.empty((N, K, P, Q), device=x.device, dtype=torch.float16).to(memory_format=torch.channels_last)
-    v_M = N * P * Q
-    v_N = K
-    v_K = C * R * S
-    grid = lambda META: (triton.cdiv(v_M, META['BLOCK_SIZE_M']) * triton.cdiv(v_N, META['BLOCK_SIZE_N']), )
-    conv2d_kernel[grid](x, w, y, N, C, H, W, K, P, Q, R, S, U, V, pad_h, pad_w, dila_h, dila_w)
+    GEMM_M = N * P * Q
+    GEMM_N = K
+    GEMM_K = C * R * S
+    grid = lambda META: (triton.cdiv(GEMM_M, META['BLOCK_SIZE_M']) * triton.cdiv(GEMM_N, META['BLOCK_SIZE_N']), )
+    conv2d_kernel[grid](x, w, y, N, C, H, W, K, P, Q, R, S, U, V, pad_h, pad_w, dila_h, dila_w, GEMM_M, GEMM_N, GEMM_K)
     return y
 

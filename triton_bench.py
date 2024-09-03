@@ -146,6 +146,11 @@ def benchmark(x_name, N, C, H, W, K, R, S, U, V, pad_h, pad_w, dila_h, dila_w, p
         ms = triton.testing.do_bench(lambda: conv2d(x))
 
     if provider == 'triton_implicit_gemm':
+        y_torch = conv2d(x)
+        y_triton = triton_implicit_gemm(x, w, stride=(U, V), padding=(pad_h, pad_w), dilation=(dila_h, dila_w))
+        if not torch.allclose(y_torch, y_triton, atol=1e-2, rtol=1e-2):
+            print("Torch and triton_implicit_gemm differ")
+            print(f'torch:{y_torch}, triton:{y_triton}')
         ms = triton.testing.do_bench(lambda: triton_implicit_gemm(x, w, stride=(U, V), padding=(pad_h, pad_w), dilation=(dila_h, dila_w)))
 
     if provider == 'torch_gemm_tn':
