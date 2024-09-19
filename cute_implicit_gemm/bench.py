@@ -145,9 +145,9 @@ configs.append(
         line_arg="provider",  # Argument name whose value corresponds to a different line in the plot
         # Possible values for `line_arg`
         # Don't compare to cublas for fp8 cases as torch.matmul doesn't support fp8 at the moment.
-        line_vals=[ref_lib.lower(), 'cutlass_implicit_gemm', 'torch_gemm', 'cute_gemm'],  # Label name for the lines
-        line_names=[ref_lib, 'Cutlass_implicit_gemm', 'Torch_gemm', 'Cute_gemm'],  # Line styles
-        styles=[("green", "-"), ("blue", "-"), ("red", "-"), ("red", "-")],  # Line color and style
+        line_vals=[ref_lib.lower(), 'cute_implicit_gemm', 'torch_gemm'],  # Label name for the lines
+        line_names=[ref_lib, 'Cute_implicit_gemm', 'Torch_gemm'],  # Line styles
+        styles=[("green", "-"), ("blue", "-"), ("red", "-")],  # Line color and style
         ylabel="TFLOPS",  # Label name for the y-axis
         plot_name="matmul-performance-fp16",
         args={},
@@ -166,46 +166,31 @@ def benchmark(x_name, N, C, H, W, K, R, S, U, V, pad_h, pad_w, dila_h, dila_w, p
     y = torch.zeros(N, K, P, Q).cuda().half()
     
     conv2d = torch.nn.Conv2d(C, K, (R, S), stride=(U, V), padding=(pad_h, pad_w), dilation=(dilation_h, dilation_w), bias=False).cuda().half()
-    conv2d.weight.data = w
     conv2d = conv2d.to(memory_format=torch.channels_last)
     x = x.to(memory_format=torch.channels_last)
     w = w.to(memory_format=torch.channels_last)
+    conv2d.weight.data = w
     y = y.to(memory_format=torch.channels_last)
 
     if provider == ref_lib.lower():
         ms = triton.testing.do_bench(lambda: conv2d(x))
 
-    if provider == 'cutlass_implicit_gemm':
-        # y_torch = conv2d(x)
-        # manual_conv2d.cutlass_implicit_gemm(y, x, w, pad_h, pad_w, U, V, dilation_h, dilation_w)
-        # if not torch.allclose(y_torch, y, atol=1e-2, rtol=1e-2):
-        #     print("Torch and triton_implicit_gemm differ")
-        #     print(f'torch:{y_torch}, triton:{y}')
-        # ms = triton.testing.do_bench(lambda: manual_conv2d.cutlass_implicit_gemm(y, x, w, pad_h, pad_w, U, V, dilation_h, dilation_w))
-        ms = float('inf')
+    if provider == 'cute_implicit_gemm':
+        y_torch = conv2d(x)
+        torch.cuda.synchronize()
+        y.fill_(0.0)
+        manual_conv2d.cute_implicit_gemm(y, x, w, pad_h, pad_w, U, V, dilation_h, dilation_w)
+        torch.cuda.synchronize()
+        if not torch.allclose(y_torch, y, atol=0.5, rtol=0.5):
+            # y_torch = conv2d(x)
+            print(f"{x_name} Torch and Cute differ ({pad_h},{pad_w}), ({U},{V}), ({dilation_h},{dilation_w})")
+            print(f'torch:{y_torch}\nCute:{y}')
+        ms = triton.testing.do_bench(lambda: manual_conv2d.cute_implicit_gemm(y, x, w, pad_h, pad_w, U, V, dilation_h, dilation_w))
 
     if provider == 'torch_gemm':
         gemm_a = torch.randn(v_M, v_K).cuda().half()
         gemm_b = torch.randn(v_N, v_K).cuda().half().T
-        ms = triton.testing.do_bench(lambda: torch.matmul(gemm_a, gemm_b)) 
-
-    if provider == 'cute_gemm':
-        gemm_a = torch.randn(v_M, v_K).cuda().half()
-        gemm_b = torch.randn(v_N, v_K).cuda().half().T
-        gemm_c = torch.zeros(v_M, v_N).cuda().half()
-        c_torch = torch.matmul(gemm_a, gemm_b)
-        if C == 64 and K == 64 and R == 1 and S == 1 and pad_h == 0 and pad_w == 0 and U == 1 and V == 1 and dila_h == 1 and dila_w == 1:
-            manual_conv2d.cute_gemm_f16_s16816fprop_optimized_f16_64x64_32x10_nhwc_align8(gemm_a, gemm_b, gemm_c)
-            if not torch.allclose(c_torch, gemm_c, atol=0.5, rtol=0.5):
-                print("Torch and cute_gemm differ")
-                print(f'torch:{c_torch}, cutlass:{gemm_c}')
-            ms = triton.testing.do_bench(lambda: manual_conv2d.cute_gemm_f16_s16816fprop_optimized_f16_64x64_32x10_nhwc_align8(gemm_a, gemm_b, gemm_c)) 
-        else:
-            manual_conv2d.cute_gemm(gemm_a, gemm_b, gemm_c)
-            if not torch.allclose(c_torch, gemm_c, atol=0.5, rtol=0.5):
-                print("Torch and cute_gemm differ")
-                print(f'torch:{c_torch}, cutlass:{gemm_c}')
-            ms = triton.testing.do_bench(lambda: manual_conv2d.cute_gemm(gemm_a, gemm_b, gemm_c))    
+        ms = triton.testing.do_bench(lambda: torch.matmul(gemm_a, gemm_b))  
 
     perf = lambda ms: gflops / ms
     return perf(ms)
@@ -215,6 +200,7 @@ manual_conv2d = build_conv2d()
 if __name__ == '__main__':
     torch.manual_seed(0)
     N = 1; C = 64; H = 56; W = 56; K = 64; R = 1; S = 1; pad_h = 0; pad_w = 0; U = 1; V = 1; dilation_h = 1; dilation_w = 1
+    N = 1; C = 64; H = 56; W = 56; K = 64; R = 3; S = 3; pad_h = 1; pad_w = 1; U = 2; V = 2; dilation_h = 1; dilation_w = 1
     # N = 1; C = 1; H = 3; W = 3; K = 1; R = 3; S = 3; pad_h = 0; pad_w = 0; U = 1; V = 1; dilation_h = 1; dilation_w = 1
 
     P = (H + 2 * pad_h - dilation_h * (R - 1) - 1) // U + 1
@@ -234,36 +220,12 @@ if __name__ == '__main__':
     conv2d.weight.data = w
     y2 = conv2d(x)
 
-    GEMM_M = N * P * Q
-    GEMM_N = K
-    GEMM_K = C * R * S
-
-    gemm_a = torch.randn(GEMM_M, GEMM_K).cuda().half()
-    gemm_b = torch.randn(GEMM_N, GEMM_K).cuda().half().T
-    gemm_c = torch.zeros(GEMM_M, GEMM_N).cuda().half()
-    manual_conv2d.cute_gemm(gemm_a, gemm_b, gemm_c)
-    c_torch = torch.matmul(gemm_a, gemm_b)
-    if torch.allclose(c_torch, gemm_c, atol=0.5, rtol=0.5):
-        print("Torch and cute_gemm match")
+    y.fill_(0.0)
+    manual_conv2d.cute_implicit_gemm(y, x, w, pad_h, pad_w, U, V, dilation_h, dilation_w)
+    if torch.allclose(y, y2, atol=0.5, rtol=0.5):
+        print("Torch and cute match")
     else:
-        print("Torch and cute_gemm differ")
-        print(f'torch:{c_torch}, cutlass:{gemm_c}')
-    gemm_c.fill_(0.0)
-    manual_conv2d.cute_gemm_f16_s16816fprop_optimized_f16_64x64_32x10_nhwc_align8(gemm_a, gemm_b, gemm_c)
-    if torch.allclose(c_torch, gemm_c, atol=0.5, rtol=0.5):
-        print("Torch and cute_gemm_f16_s16816fprop_optimized_f16_64x64_32x10_nhwc_align8 match")
-    else:
-        print("Torch and cute_gemm_f16_s16816fprop_optimized_f16_64x64_32x10_nhwc_align8 differ")
-        print(f'torch:{c_torch}, cutlass:{gemm_c}')
-
+        print("Torch and cute differ")
+        print(f'torch:{y2}\ncute:{y}')
     
-
-    # manual_conv2d.cutlass_implicit_gemm(y, x, w, pad_h, pad_w, U, V, dilation_h, dilation_w)
-    # if torch.allclose(y1, y, atol=1e-2, rtol=1e-2):
-    #     print("Torch and cutlass_implicit_gemm match")
-    # else:
-    #     print("Torch and cutlass_implicit_gemm differ")
-    #     print(f'torch: shape:{y1.shape}, stride:{y1.stride()}, {y1}')
-    #     print(f'cutlass_implicit_gemm: shape:{y.shape}, stride:{y.stride()}, {y}')
-
     benchmark.run(show_plots=False, print_data=True) 
