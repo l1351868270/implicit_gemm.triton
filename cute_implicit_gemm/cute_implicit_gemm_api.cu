@@ -1,6 +1,5 @@
 #include <torch/extension.h>
 #include "cute_gemm.h"
-#include "cute_gemm_f16_s16816fprop_optimized_f16_64x64_32x10_nhwc_align8.h"
 #include "cute_implicit_gemm.h"
 
 void py_cute_implicit_gemm(torch::Tensor y, torch::Tensor x, torch::Tensor w, int pad_h, int pad_w, int U, int V, int dila_h, int dila_w) {
@@ -53,33 +52,8 @@ void py_cute_gemm(torch::Tensor a, torch::Tensor b, torch::Tensor c) {
                                                 stride_am, stride_ak, stride_bk, stride_bn, stride_cm, stride_cn);
 }
 
-void py_cute_gemm_f16_s16816fprop_optimized_f16_64x64_32x10_nhwc_align8(torch::Tensor a, torch::Tensor b, torch::Tensor c) {
-    c10::Half *a_ptr = a.data_ptr<c10::Half>();
-    c10::Half *b_ptr = b.data_ptr<c10::Half>();
-    c10::Half *c_ptr = c.data_ptr<c10::Half>();
-
-    half* a_hf = reinterpret_cast<half*>(a_ptr);
-    half* b_hf = reinterpret_cast<half*>(b_ptr);
-    half* c_hf = reinterpret_cast<half*>(c_ptr);
-    
-    int M = a.size(0);
-    int N = b.size(1);
-    int K = a.size(1);
-    
-    int stride_am = K;
-    int stride_ak = 1;
-    int stride_bk = 1;
-    int stride_bn = K;
-    int stride_cm = N;
-    int stride_cn= 1;
-    bench::cute_gemm_f16_s16816fprop_optimized_f16_64x64_32x10_nhwc_align8::gemm_tn<half, half, half>(a_hf, b_hf, c_hf, 
-                                                M, N, K, 
-                                                stride_am, stride_ak, stride_bk, stride_bn, stride_cm, stride_cn);
-}
-
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
 m.def("cute_gemm", torch::wrap_pybind_function(py_cute_gemm), "cute_gemm");
-m.def("cute_gemm_f16_s16816fprop_optimized_f16_64x64_32x10_nhwc_align8", torch::wrap_pybind_function(py_cute_gemm_f16_s16816fprop_optimized_f16_64x64_32x10_nhwc_align8), "cute_gemm_f16_s16816fprop_optimized_f16_64x64_32x10_nhwc_align8");
 m.def("cute_implicit_gemm", torch::wrap_pybind_function(py_cute_implicit_gemm), "cute_implicit_gemm");
 }

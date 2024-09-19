@@ -6,15 +6,18 @@ $(info conda env include is: $(CONDA_ENV_INCLUDE))
 CC_INCLUDES = -I../cutlass/include -I../cutlass/tools/util/include -I$(CONDA_PACKAGES_INCLUDE) 
 CC_LFLAGS = -L$(CONDA_ENV_INCLUDE) -lcudart -lcublas -lcudnn
 
+.PHONY: cute_implicit_gemm_test
+cute_implicit_gemm_test: cute_implicit_gemm_test.cu
+	nvcc -o build/cute_implicit_gemm_test cute_implicit_gemm_test.cu  ${CC_FLAGS} ${CC_INCLUDES} ${CC_LFLAGS}
 
 .PHONY: cute_gemm_test
 cute_gemm_test: cute_gemm_test.cu
 	nvcc -o build/cute_gemm_test cute_gemm_test.cu  ${CC_FLAGS} ${CC_INCLUDES} ${CC_LFLAGS}
 
-.PHONY: cutlass_gemm_v2_test
-cutlass_gemm_v2_test: cutlass_gemm_v2_test.cu
-	nvcc -o build/cutlass_gemm_v2_test cutlass_gemm_v2_test.cu  ${CC_FLAGS} ${CC_INCLUDES} ${CC_LFLAGS}
+.PHONY: layout_test
+layout_test: layout_test.cu
+	nvcc -o build/layout_test layout_test.cu  ${CC_FLAGS} ${CC_INCLUDES} ${CC_LFLAGS}
 
 all: cutlass_implicit_gemm_56x56_test cute_gemm_test
 clean:
-	rm -f build/cutlass_implicit_gemm_56x56_test build/cute_gemm_test
+	rm -f build/cutlass_implicit_gemm_56x56_test build/cute_gemm_test build/cute_implicit_gemm_test

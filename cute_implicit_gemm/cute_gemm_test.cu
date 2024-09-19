@@ -1,3 +1,5 @@
+// ncu -f --set full --call-stack -o build/cute_gemm_test build/cute_gemm_test
+// ncu --csv --log-file build/a.csv --cache-control=all --clock-control=base --metrics gpu__time_duration.sum build/cute_gemm_test
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -6,6 +8,7 @@
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
 #include "cute_gemm.h"
+#include "cute_gemm_f16_s16816fprop_optimized_f16_64x64_32x10_nhwc_align8.h"
 
 float frand() {
     return (float)rand() / (float)RAND_MAX;
@@ -61,11 +64,11 @@ int main(int argc, char ** argv) {
     if (argc >= 2) {
         sscanf(argv[1], "%d", &M);
     }
-    int N = 256;
+    int N = 64;
     if (argc >= 3) {
         sscanf(argv[2], "%d", &N);
     }
-    int K = 256;
+    int K = 64;
     if (argc >= 4) {
         sscanf(argv[3], "%d", &K);
     }
@@ -96,6 +99,12 @@ int main(int argc, char ** argv) {
     bench::cute_gemm::gemm_tn<half, half, half>(d_A.data().get(), d_B.data().get(), d_C.data().get(), 
                                              M, N, K, stride_am, stride_ak, stride_bk, stride_bn, stride_cm, stride_cn);
     thrust::copy(d_C.begin(), d_C.end(), h_C1.begin());
-    print_tensor(h_C1.data(), M, N);
+    // print_tensor(h_C1.data(), M, N);
+
+    bench::cute_gemm_f16_s16816fprop_optimized_f16_64x64_32x10_nhwc_align8::gemm_tn<half, half, half>(d_A.data().get(), d_B.data().get(), d_C.data().get(), 
+                                             M, N, K, stride_am, stride_ak, stride_bk, stride_bn, stride_cm, stride_cn);
+    thrust::copy(d_C.begin(), d_C.end(), h_C1.begin());
+    // print_tensor(h_C1.data(), M, N);
+
     return 0;
 }
