@@ -222,7 +222,7 @@ cute_implicit_gemm_device(T * y_ptr, T * x_ptr, T * w_ptr,
     }
 #endif
 
-#if 1
+#if 0
     int n = gemm_i / (P * Q);
     int npq_residual = gemm_i % (P * Q);
     int p = npq_residual / Q;
@@ -241,16 +241,13 @@ cute_implicit_gemm_device(T * y_ptr, T * x_ptr, T * w_ptr,
 
         auto x_crs_crd = idx2crd(gemm_k, get<1>(shape(x_glayout)), make_stride(S * C, C, 1));
         auto x_gcrd = make_coord(x_npq_crd, x_crs_crd);
-        int r = gemm_k / (S * C);
-        int crs_residual = gemm_k % (S * C);
-        int s = crs_residual / C;
-        int c = crs_residual % C;
+
 
         int h = get<1>(x_npq_crd) * U + get<0>(x_crs_crd) * dila_h - pad_h;
         int w = get<2>(x_npq_crd) * V + get<1>(x_crs_crd) * dila_w - pad_w;
         // auto goffs_x = x_glayout(x_gcrd);
         // goffs_x = goffs_x - pad_h * W * C - pad_w * C;
-        int goffs_x = n * H * W * C + h * W * C + w * C + c;
+        int goffs_x = get<0>(x_npq_crd) * H * W * C + h * W * C + w * C + get<2>(x_crs_crd);
 
         auto w_gcrd = make_coord(k, x_crs_crd);
         auto goffs_w = w_glayout(w_gcrd);
@@ -272,9 +269,12 @@ cute_implicit_gemm_device(T * y_ptr, T * x_ptr, T * w_ptr,
         printf("x_glayout: "); print(x_glayout); printf("\n");
     }
 #endif
-        #if 1
+        #if 0
 
-            
+            int r = gemm_k / (S * C);
+            int crs_residual = gemm_k % (S * C);
+            int s = crs_residual / C;
+            int c = crs_residual % C;
             assert(r == get<0>(x_crs_crd));
             assert(s == get<1>(x_crs_crd));
             assert(c == get<2>(x_crs_crd));
