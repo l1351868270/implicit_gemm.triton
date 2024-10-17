@@ -119,18 +119,6 @@ def triton_implicit_gemm(x: torch.Tensor, w: torch.Tensor, stride=(1, 1), paddin
     return y
 
 
-class LSLTensor(object):
-    def __init__(self, pycuda_data, shape, dtype, strides):
-        self.pycuda_data = pycuda_data
-        self.shape = shape
-        self.dtype = dtype
-        self.strides = strides
-
-    def data_ptr(self):
-        # print(f'data_ptr: {int(self.data_ptr_)}')
-        return int(self.pycuda_data)
-
-
 def h_conv2d(x_ptr, w_ptr, stride=(1, 1), padding=(0, 0), dilation=(1, 1)):
     N, H, W, C = x_ptr.shape
     K, R, S, C = w_ptr.shape
