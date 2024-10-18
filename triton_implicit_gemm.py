@@ -115,7 +115,9 @@ def triton_implicit_gemm(x: torch.Tensor, w: torch.Tensor, stride=(1, 1), paddin
     print(f'x: shape:{x.shape}, stride:{x.stride()}')
     print(f'w: shape:{w.shape}, stride:{w.stride()}')
     grid = lambda META: (triton.cdiv(GEMM_M, META['BLOCK_SIZE_M']) * triton.cdiv(GEMM_N, META['BLOCK_SIZE_N']), )
-    conv2d_kernel[grid](x, w, y, N, C, H, W, K, P, Q, R, S, U, V, pad_h, pad_w, dila_h, dila_w, GEMM_M, GEMM_N, GEMM_K)
+    pgm = conv2d_kernel[grid](x, w, y, N, C, H, W, K, P, Q, R, S, U, V, pad_h, pad_w, dila_h, dila_w, GEMM_M, GEMM_N, GEMM_K)
+    ptx = pgm.asm['ttir']
+    print(f'++++++++++ {ptx}')
     return y
 
 
