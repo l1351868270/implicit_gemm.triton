@@ -1,7 +1,5 @@
 
-import pycuda.autoinit
-import pycuda.driver as cuda
-import pycuda.gpuarray as gpuarray
+import cupy as cp
 import triton
 import triton.language as tl
 
@@ -10,56 +8,59 @@ import numpy as np
 import triton
 import triton.language as tl
 
-class LSLGPUArray(gpuarray.GPUArray):
-    def __init__(self, *args, **kwargs):
-        super(LSLGPUArray, self).__init__(*args, **kwargs)
+
+class LSLndarray(object):
+    def __init__(self, cupy_data):
+        self.cupy_data= cupy_data
+        self.data = cupy_data.data
+        self.dtype = cupy_data.dtype
+        self.shape = cupy_data.shape
+        self.strides = cupy_data.strides
 
     def data_ptr(self):
-        return self.__cuda_array_interface__['data'][0]
+        return self.data.ptr
+    
+    def numpy(self):
+        return cp.asnumpy(self.cupy_data)
 
-def to_gpu(ary, allocator=cuda.mem_alloc):
-    """converts a numpy array to a GPUArray"""
-    result = LSLGPUArray(ary.shape, ary.dtype, allocator, strides=gpuarray._compact_strides(ary))
-    result.set(ary)
-    return result
 
 def get_autotune_config():
     return [
         triton.Config({'BLOCK_SIZE_M': 128, 'BLOCK_SIZE_N': 256, 'BLOCK_SIZE_K': 64, 'GROUP_SIZE_M': 8}, num_stages=3,
                       num_warps=8),
-        # triton.Config({'BLOCK_SIZE_M': 64, 'BLOCK_SIZE_N': 256, 'BLOCK_SIZE_K': 32, 'GROUP_SIZE_M': 8}, num_stages=4,
-        #               num_warps=4),
-        # triton.Config({'BLOCK_SIZE_M': 128, 'BLOCK_SIZE_N': 128, 'BLOCK_SIZE_K': 32, 'GROUP_SIZE_M': 8}, num_stages=4,
-        #               num_warps=4),
-        # triton.Config({'BLOCK_SIZE_M': 128, 'BLOCK_SIZE_N': 64, 'BLOCK_SIZE_K': 32, 'GROUP_SIZE_M': 8}, num_stages=4,
-        #               num_warps=4),
-        # triton.Config({'BLOCK_SIZE_M': 64, 'BLOCK_SIZE_N': 128, 'BLOCK_SIZE_K': 32, 'GROUP_SIZE_M': 8}, num_stages=4,
-        #               num_warps=4),
-        # triton.Config({'BLOCK_SIZE_M': 128, 'BLOCK_SIZE_N': 32, 'BLOCK_SIZE_K': 32, 'GROUP_SIZE_M': 8}, num_stages=4,
-        #               num_warps=4),
-        # triton.Config({'BLOCK_SIZE_M': 64, 'BLOCK_SIZE_N': 64, 'BLOCK_SIZE_K': 32, 'GROUP_SIZE_M': 8}, num_stages=5,
-        #               num_warps=4),
-        # triton.Config({'BLOCK_SIZE_M': 64, 'BLOCK_SIZE_N': 32, 'BLOCK_SIZE_K': 32, 'GROUP_SIZE_M': 8}, num_stages=5,
-        #               num_warps=2),
-        # triton.Config({'BLOCK_SIZE_M': 32, 'BLOCK_SIZE_N': 64, 'BLOCK_SIZE_K': 32, 'GROUP_SIZE_M': 8}, num_stages=5,
-        #               num_warps=2),
-        # # Good config for fp8 inputs.
-        # triton.Config({'BLOCK_SIZE_M': 128, 'BLOCK_SIZE_N': 256, 'BLOCK_SIZE_K': 128, 'GROUP_SIZE_M': 8}, num_stages=3,
-        #               num_warps=8),
-        # triton.Config({'BLOCK_SIZE_M': 256, 'BLOCK_SIZE_N': 128, 'BLOCK_SIZE_K': 128, 'GROUP_SIZE_M': 8}, num_stages=3,
-        #               num_warps=8),
-        # triton.Config({'BLOCK_SIZE_M': 256, 'BLOCK_SIZE_N': 64, 'BLOCK_SIZE_K': 128, 'GROUP_SIZE_M': 8}, num_stages=4,
-        #               num_warps=4),
-        # triton.Config({'BLOCK_SIZE_M': 64, 'BLOCK_SIZE_N': 256, 'BLOCK_SIZE_K': 128, 'GROUP_SIZE_M': 8}, num_stages=4,
-        #               num_warps=4),
-        # triton.Config({'BLOCK_SIZE_M': 128, 'BLOCK_SIZE_N': 128, 'BLOCK_SIZE_K': 128, 'GROUP_SIZE_M': 8}, num_stages=4,
-        #               num_warps=4),
-        # triton.Config({'BLOCK_SIZE_M': 128, 'BLOCK_SIZE_N': 64, 'BLOCK_SIZE_K': 64, 'GROUP_SIZE_M': 8}, num_stages=4,
-        #               num_warps=4),
-        # triton.Config({'BLOCK_SIZE_M': 64, 'BLOCK_SIZE_N': 128, 'BLOCK_SIZE_K': 64, 'GROUP_SIZE_M': 8}, num_stages=4,
-        #               num_warps=4),
-        # triton.Config({'BLOCK_SIZE_M': 128, 'BLOCK_SIZE_N': 32, 'BLOCK_SIZE_K': 64, 'GROUP_SIZE_M': 8}, num_stages=4,
-        #               num_warps=4)
+        triton.Config({'BLOCK_SIZE_M': 64, 'BLOCK_SIZE_N': 256, 'BLOCK_SIZE_K': 32, 'GROUP_SIZE_M': 8}, num_stages=4,
+                      num_warps=4),
+        triton.Config({'BLOCK_SIZE_M': 128, 'BLOCK_SIZE_N': 128, 'BLOCK_SIZE_K': 32, 'GROUP_SIZE_M': 8}, num_stages=4,
+                      num_warps=4),
+        triton.Config({'BLOCK_SIZE_M': 128, 'BLOCK_SIZE_N': 64, 'BLOCK_SIZE_K': 32, 'GROUP_SIZE_M': 8}, num_stages=4,
+                      num_warps=4),
+        triton.Config({'BLOCK_SIZE_M': 64, 'BLOCK_SIZE_N': 128, 'BLOCK_SIZE_K': 32, 'GROUP_SIZE_M': 8}, num_stages=4,
+                      num_warps=4),
+        triton.Config({'BLOCK_SIZE_M': 128, 'BLOCK_SIZE_N': 32, 'BLOCK_SIZE_K': 32, 'GROUP_SIZE_M': 8}, num_stages=4,
+                      num_warps=4),
+        triton.Config({'BLOCK_SIZE_M': 64, 'BLOCK_SIZE_N': 64, 'BLOCK_SIZE_K': 32, 'GROUP_SIZE_M': 8}, num_stages=5,
+                      num_warps=4),
+        triton.Config({'BLOCK_SIZE_M': 64, 'BLOCK_SIZE_N': 32, 'BLOCK_SIZE_K': 32, 'GROUP_SIZE_M': 8}, num_stages=5,
+                      num_warps=2),
+        triton.Config({'BLOCK_SIZE_M': 32, 'BLOCK_SIZE_N': 64, 'BLOCK_SIZE_K': 32, 'GROUP_SIZE_M': 8}, num_stages=5,
+                      num_warps=2),
+        # Good config for fp8 inputs.
+        triton.Config({'BLOCK_SIZE_M': 128, 'BLOCK_SIZE_N': 256, 'BLOCK_SIZE_K': 128, 'GROUP_SIZE_M': 8}, num_stages=3,
+                      num_warps=8),
+        triton.Config({'BLOCK_SIZE_M': 256, 'BLOCK_SIZE_N': 128, 'BLOCK_SIZE_K': 128, 'GROUP_SIZE_M': 8}, num_stages=3,
+                      num_warps=8),
+        triton.Config({'BLOCK_SIZE_M': 256, 'BLOCK_SIZE_N': 64, 'BLOCK_SIZE_K': 128, 'GROUP_SIZE_M': 8}, num_stages=4,
+                      num_warps=4),
+        triton.Config({'BLOCK_SIZE_M': 64, 'BLOCK_SIZE_N': 256, 'BLOCK_SIZE_K': 128, 'GROUP_SIZE_M': 8}, num_stages=4,
+                      num_warps=4),
+        triton.Config({'BLOCK_SIZE_M': 128, 'BLOCK_SIZE_N': 128, 'BLOCK_SIZE_K': 128, 'GROUP_SIZE_M': 8}, num_stages=4,
+                      num_warps=4),
+        triton.Config({'BLOCK_SIZE_M': 128, 'BLOCK_SIZE_N': 64, 'BLOCK_SIZE_K': 64, 'GROUP_SIZE_M': 8}, num_stages=4,
+                      num_warps=4),
+        triton.Config({'BLOCK_SIZE_M': 64, 'BLOCK_SIZE_N': 128, 'BLOCK_SIZE_K': 64, 'GROUP_SIZE_M': 8}, num_stages=4,
+                      num_warps=4),
+        triton.Config({'BLOCK_SIZE_M': 128, 'BLOCK_SIZE_N': 32, 'BLOCK_SIZE_K': 64, 'GROUP_SIZE_M': 8}, num_stages=4,
+                      num_warps=4)
     ]
 
 
@@ -160,7 +161,7 @@ def h_conv2d(x_ptr, w_ptr, stride=(1, 1), padding=(0, 0), dilation=(1, 1)):
 
     return y
 
-def triton_implicit_gemm(x: LSLGPUArray, w: LSLGPUArray, y: LSLGPUArray, stride=(1, 1), padding=(0, 0), dilation=(1, 1)):
+def triton_implicit_gemm(x: LSLndarray, w: LSLndarray, y: LSLndarray, stride=(1, 1), padding=(0, 0), dilation=(1, 1)):
     N, H, W, C = x.shape
     K, R, S, C = w.shape
     print(f'N:{N}, H:{H}, W:{W}, C:{C}, K:{K}, R:{R}, S:{S}, C:{C}')
@@ -179,8 +180,8 @@ def triton_implicit_gemm(x: LSLGPUArray, w: LSLGPUArray, y: LSLGPUArray, stride=
 
 if __name__ == '__main__':
     np.random.seed(0)
-    N = 1; C = 64; H = 56; W = 56; K = 64; R = 1; S = 1; pad_h = 0; pad_w = 0; U = 1; V = 1; dila_h = 1; dila_w = 1
-    # N = 1; C = 1; H = 3; W = 3; K = 1; R = 3; S = 3; pad_h = 0; pad_w = 0; U = 1; V = 1; dila_h = 1; dila_w = 1
+    # N = 1; C = 64; H = 56; W = 56; K = 64; R = 1; S = 1; pad_h = 0; pad_w = 0; U = 1; V = 1; dila_h = 1; dila_w = 1
+    N = 1; C = 64; H = 3; W = 3; K = 64; R = 3; S = 3; pad_h = 0; pad_w = 0; U = 1; V = 1; dila_h = 1; dila_w = 1
 
     P = (H + 2 * pad_h - dila_h * (R - 1) - 1) // U + 1
     Q = (W + 2 * pad_w - dila_w * (S - 1) - 1) // V + 1
@@ -189,14 +190,18 @@ if __name__ == '__main__':
     h_w = np.ascontiguousarray(np.random.randn(K, C, R, S).transpose(0, 2, 3, 1).astype(np.float16)) # NHWC
     h_y = np.empty((N, P, Q, K),  dtype=np.float16)
 
-    tl_x = to_gpu(h_x)
-    tl_w = to_gpu(h_w)
-    tl_y = to_gpu(h_y)
+    d_x = cp.asarray(h_x)
+    d_w = cp.asarray(h_w)
+    d_y = cp.asarray(h_y)
+
+    tl_x = LSLndarray(d_x)
+    tl_w = LSLndarray(d_w)
+    tl_y = LSLndarray(d_y)
 
     triton_implicit_gemm(tl_x, tl_w, tl_y, stride=(U, V), padding=(pad_h, pad_w), dilation=(dila_h, dila_w))
-    y1 = tl_y.get()
+    y1 = tl_y.numpy()
 
-    y2 = h_conv2d(tl_x.get(), tl_w.get(), stride=(U, V), padding=(pad_h, pad_w), dilation=(dila_h, dila_w))
+    y2 = h_conv2d(tl_x.numpy(), tl_w.numpy(), stride=(U, V), padding=(pad_h, pad_w), dilation=(dila_h, dila_w))
     if np.allclose(y1, y2, atol=1e-2, rtol=1e-2):
         print("Triton and numpy match")
     else:
