@@ -53,6 +53,9 @@ class LSLndarray(object):
 
     def data_ptr(self):
         return self.data.ptr
+    
+    def numpy(self):
+        return cp.asnumpy(self.cupy_data)
 
 
 def add(x: LSLndarray, y: LSLndarray, output: LSLndarray, n_elements):
@@ -82,7 +85,7 @@ if __name__ == '__main__':
     print(tl_c.cupy_data)
 
     h_d = h_a + h_b
-    if np.allclose(tl_c.cupy_data, h_d, rtol=1e-6, atol=1e-6):
+    if np.allclose(tl_c.numpy(), h_d, rtol=1e-6, atol=1e-6):
         print(f'Triton and numpy match!')
     else:
         print(f'Triton and numpy mismatch!\n'
