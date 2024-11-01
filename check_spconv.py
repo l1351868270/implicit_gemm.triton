@@ -41,7 +41,7 @@ if __name__ == '__main__':
         tl_w = w.permute(2, 3, 4, 0, 1).contiguous().to(dtype=torch.float, device='cuda')
 
     # Conv3d check
-    sp_sparseconv3d = spconv.SparseConv3d(C, K, [T, R, S], stride=[stride_d, stride_h, stride_w], padding=[pad_d, pad_h, pad_w], dilation=[dila_d, dila_h, dila_w], bias=False, algo=0)
+    sp_sparseconv3d = spconv.SparseConv3d(C, K, [T, R, S], stride=[stride_d, stride_h, stride_w], padding=[pad_d, pad_h, pad_w], dilation=[dila_d, dila_h, dila_w], bias=False)
     sp_sparseconv3d.weight.data = tl_w
     sp_sparse_y = sp_sparseconv3d(sp_x)
     # print(sp_sparse_y.dense())
