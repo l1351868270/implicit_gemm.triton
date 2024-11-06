@@ -304,7 +304,7 @@ class NPConvAlgo(object):
     Native = 0
 
 
-def v2_generate_subm_conv_inds(indices: np.array, indice_pairs: np.array, out_inds: np.array, indice_num_per_loc: np.array, batch_size: int, input_dims: List[int], ksize: List[int], dilation: List[int]):
+def generate_subm_conv_inds(indices: np.array, indice_pairs: np.array, out_inds: np.array, indice_num_per_loc: np.array, batch_size: int, input_dims: List[int], ksize: List[int], dilation: List[int]):
     assert ksize[0] % 2 == 1 and ksize[1] % 2 == 1 and ksize[2] %2 == 1
     stride = [1, 1, 1]
     padding = [(ksize[i] // 2) * dilation[i] for i in range(3)]
@@ -352,15 +352,15 @@ def v2_generate_subm_conv_inds(indices: np.array, indice_pairs: np.array, out_in
     return indices.shape[0]
 
 
-def v2_generate_subm_conv_inds_cpu(indices: np.array, indice_pairs: np.array, out_inds: np.array, indice_num_per_loc: np.array, 
+def generate_subm_conv_inds_cpu(indices: np.array, indice_pairs: np.array, out_inds: np.array, indice_num_per_loc: np.array, 
                                 batch_size: int, input_dims: List[int], ksize: List[int], dilation: List[int]):
     ndim = indices.shape[1] - 1
     assert len(input_dims) == ndim
     input_dims_ = []
-    return v2_generate_subm_conv_inds(indices, indice_pairs, out_inds, indice_num_per_loc, batch_size, input_dims, ksize, dilation)
+    return generate_subm_conv_inds(indices, indice_pairs, out_inds, indice_num_per_loc, batch_size, input_dims, ksize, dilation)
 
 
-def v2_generate_conv_inds(indices: np.array, indice_pairs: np.array, out_inds: np.array, indice_num_per_loc: np.array, batch_size: int, output_dims: List[int], input_dims: List[int], ksize: List[int], stride: List[int], padding: List[int], dilation: List[int], transposed: bool):
+def generate_conv_inds(indices: np.array, indice_pairs: np.array, out_inds: np.array, indice_num_per_loc: np.array, batch_size: int, output_dims: List[int], input_dims: List[int], ksize: List[int], stride: List[int], padding: List[int], dilation: List[int], transposed: bool):
     kv = functools.reduce(lambda x, y: x * y, ksize, 1) 
     problem = ConvProblem(batch_size, 1, 1, input_dims, output_dims, ksize, padding, stride, dilation)
     use_int32 = problem.check_npq_not_overflow()
@@ -403,18 +403,18 @@ def v2_generate_conv_inds(indices: np.array, indice_pairs: np.array, out_inds: n
         loc_iter = loc_iter.plus()
     return num_act
 
-def v2_generate_conv_inds_cpu(indices: np.array, indice_pairs: np.array, out_inds: np.array, indice_num_per_loc: np.array, 
+def generate_conv_inds_cpu(indices: np.array, indice_pairs: np.array, out_inds: np.array, indice_num_per_loc: np.array, 
                                 batch_size: int, output_dims: List[int], input_dims: List[int], ksize: List[int], stride: List[int], padding: List[int], dilation: List[int], transposed: bool):
     ndim = indices.shape[1] - 1
     assert len(output_dims) == ndim and len(input_dims) == ndim and len(ksize) == ndim and \
            len(stride) == ndim and len(padding) == ndim and len(dilation) == ndim, f"your params size not equal to {ndim}"
     
-    return v2_generate_conv_inds(indices, indice_pairs, out_inds, indice_num_per_loc, 
+    return generate_conv_inds(indices, indice_pairs, out_inds, indice_num_per_loc, 
                                  batch_size, output_dims, input_dims, 
                                  ksize, stride, padding, dilation, transposed)
 
 
-def v2_get_indice_pairs(indices: np.array,
+def get_indice_pairs(indices: np.array,
                      batch_size: int,
                      spatial_shape: List[int],
                      algo: NPConvAlgo,
@@ -442,15 +442,15 @@ def v2_get_indice_pairs(indices: np.array,
     indice_num_per_loc = np.zeros((kv), dtype=indices.dtype)
     if subm:
         out_inds = np.copy(indices)
-        v2_generate_subm_conv_inds_cpu(indices, pair, out_inds, indice_num_per_loc, batch_size, spatial_shape, ksize, dilation)
+        generate_subm_conv_inds_cpu(indices, pair, out_inds, indice_num_per_loc, batch_size, spatial_shape, ksize, dilation)
     else:
         out_inds = np.empty((kv * indices.shape[0], indices.shape[1]), dtype=indices.dtype)
-        num_act_out = v2_generate_conv_inds_cpu(indices, pair, out_inds, indice_num_per_loc, batch_size, out_shape, spatial_shape, ksize, stride, padding, dilation, transpose)
+        num_act_out = generate_conv_inds_cpu(indices, pair, out_inds, indice_num_per_loc, batch_size, out_shape, spatial_shape, ksize, stride, padding, dilation, transpose)
         out_inds = out_inds[:num_act_out]
     return out_inds, pair, indice_num_per_loc
 
 
-def v2_gather_cpu(out: np.array, in_: np.array, inds: np.array):
+def gather_cpu(out: np.array, in_: np.array, inds: np.array):
     nhot = inds.shape[0]
     channel = in_.shape[1]
     buffer_data = out
@@ -459,7 +459,7 @@ def v2_gather_cpu(out: np.array, in_: np.array, inds: np.array):
         buffer_data[i] = features_data[inds[i]]
 
 
-def v2_scatter_add_cpu(out: np.array, in_: np.array, inds: np.array):
+def scatter_add_cpu(out: np.array, in_: np.array, inds: np.array):
     nhot = inds.shape[0]
     channel = in_.shape[1]
     indices_data = inds
@@ -473,7 +473,7 @@ def v2_scatter_add_cpu(out: np.array, in_: np.array, inds: np.array):
             features_data[indices_data[i]][j] += buffer_data[i][j]
 
 
-def v2_indice_conv(features: np.array, filters: np.array, indice_pairs: np.array, indice_pair_num: np.array, num_activate_out: int, subm: bool, algo: int):
+def indice_conv(features: np.array, filters: np.array, indice_pairs: np.array, indice_pair_num: np.array, num_activate_out: int, subm: bool, algo: int):
     kv_dim = 1
     out_channel = filters.shape[0]
     filters = filters.reshape(out_channel, -1, filters.shape[-1])
@@ -519,14 +519,14 @@ def v2_indice_conv(features: np.array, filters: np.array, indice_pairs: np.array
             continue
         inp_indices = pair_in[i][:nhot]
         out_indices = pair_out[i][:nhot]
-        v2_gather_cpu(inp_buffer, a, inp_indices)
+        gather_cpu(inp_buffer, a, inp_indices)
         filters_i = filters[:, i]
         filters_cur = filters_i.T
         np.matmul(inp_buffer[:nhot], filters_cur, out=out_buffer[:nhot])
-        v2_scatter_add_cpu(c, out_buffer, out_indices)
+        scatter_add_cpu(c, out_buffer, out_indices)
     return out_features
 
-def v2_sparse_convolution(input: NPSparseConvTensor, add_input: Optional[NPSparseConvTensor], weight: np.array, ndim: int, in_channels: int, out_channels: int,
+def sparse_convolution(input: NPSparseConvTensor, add_input: Optional[NPSparseConvTensor], weight: np.array, ndim: int, in_channels: int, out_channels: int,
                  kernel_size: List[int]=[3, 3, 3], stride: List[int]=[1, 1, 1], padding: List[int]=[0, 0, 0], 
                  dilation: List[int]=[1, 1, 1], groups: int = 1, bias: bool = True, subm: bool = False,
                  output_padding: List[int]=[0, 0, 0], transposed: bool = False, inverse: bool = False, 
@@ -551,32 +551,32 @@ def v2_sparse_convolution(input: NPSparseConvTensor, add_input: Optional[NPSpars
         out_tensor.indice_dict = input.indice_dict
         out_tensor.grid = input.grid
         return out_tensor
-    outids, indice_pairs, indice_pair_num = v2_get_indice_pairs(
+    outids, indice_pairs, indice_pair_num = get_indice_pairs(
         indices, batch_size, spatial_shape, algo,
         kernel_size, stride, padding, 
         dilation, output_padding, subm,
         transposed)
     if subm:
-        out_features = v2_indice_conv(features, weight, indice_pairs, indice_pair_num, outids.shape[0], subm=True, algo=algo)
+        out_features = indice_conv(features, weight, indice_pairs, indice_pair_num, outids.shape[0], subm=True, algo=algo)
     else:
-        out_features = v2_indice_conv(features, weight, indice_pairs, indice_pair_num, outids.shape[0], subm=False, algo=algo)
+        out_features = indice_conv(features, weight, indice_pairs, indice_pair_num, outids.shape[0], subm=False, algo=algo)
     output_tensor = NPSparseConvTensor(out_features, outids, out_spatial_shape, batch_size)
     return output_tensor
 
 
-def v2_subm_conv3d(input: NPSparseConvTensor, add_input: Optional[NPSparseConvTensor], weight: np.array, in_channels, out_channels, kernel_size, 
+def subm_conv3d(input: NPSparseConvTensor, add_input: Optional[NPSparseConvTensor], weight: np.array, in_channels, out_channels, kernel_size, 
                 stride=1, padding=0, dilation=1, groups=1, bias=True, indice_key=None, algo: Optional[NPConvAlgo]=NPConvAlgo.Native, 
                 fp32_accum: Optional[bool]=None, large_kernel_fast_algo: bool=False, name=None):
-    return v2_sparse_convolution(input, add_input, weight, 3, in_channels, out_channels,
+    return sparse_convolution(input, add_input, weight, 3, in_channels, out_channels,
                                  kernel_size, stride = stride, padding = padding, 
                                  dilation = dilation, groups = groups, bias = bias, subm = True,
                                  indice_key = indice_key, algo = algo, fp32_accum = fp32_accum,
                                  large_kernel_fast_algo = large_kernel_fast_algo, name=name)
 
-def v2_sparse_conv3d(input: NPSparseConvTensor, add_input: Optional[NPSparseConvTensor], weight: np.array, in_channels, out_channels, kernel_size, 
+def sparse_conv3d(input: NPSparseConvTensor, add_input: Optional[NPSparseConvTensor], weight: np.array, in_channels, out_channels, kernel_size, 
                 stride=1, padding=0, dilation=1, groups=1, bias=True, indice_key=None, algo: Optional[NPConvAlgo]=NPConvAlgo.Native, 
                 fp32_accum: Optional[bool]=None, large_kernel_fast_algo: bool=False, name=None):
-    return v2_sparse_convolution(input, add_input, weight, 3, in_channels, out_channels,
+    return sparse_convolution(input, add_input, weight, 3, in_channels, out_channels,
                                  kernel_size, stride = stride, padding = padding, 
                                  dilation = dilation, groups = groups, bias = bias, subm = False,
                                  indice_key = indice_key, algo = algo, fp32_accum = fp32_accum,
@@ -587,7 +587,6 @@ if __name__ == '__main__':
     # N = 1; C = 64; D = 56; H = 56; W = 56; K = 64; T = 1; R = 1; S = 1; pad_d = 0; pad_h = 0; pad_w = 0; stride_d = 1; stride_h = 1; stride_w = 1; dila_d = 1; dila_h = 1; dila_w = 1
     N = 1; C = 16; D = 9; H = 9; W = 9; K = 16; T = 3; R = 3; S = 3; pad_d = 0; pad_h = 0; pad_w = 0; stride_d = 1; stride_h = 1; stride_w = 1; dila_d = 1; dila_h = 1; dila_w = 1
     # N = 1; C = 16; D = 9; H = 9; W = 9; K = 16; T = 3; R = 3; S = 3; pad_d = 1; pad_h = 1; pad_w = 1; stride_d = 1; stride_h = 1; stride_w = 1; dila_d = 1; dila_h = 1; dila_w = 1
-
     # N = 1; C = 16; D = 9; H = 9; W = 9; K = 16; T = 1; R = 1; S = 1; pad_d = 0; pad_h = 0; pad_w = 0; stride_d = 1; stride_h = 1; stride_w = 1; dila_d = 1; dila_h = 1; dila_w = 1
     
     w = np.random.randn(K, C, T, R, S).astype(np.float32)
@@ -604,11 +603,11 @@ if __name__ == '__main__':
     values = np.random.randn(num_, C).astype(np.float32)
     spatial_shape = [D, H, W]
 
-    v2_tl_w = np.ascontiguousarray(w.transpose(0, 2, 3, 4, 1))
-    v2_tl_x = NPSparseConvTensor(values, sp_indices, spatial_shape, N)
-    v2_tl_subm_y = v2_subm_conv3d(v2_tl_x, None, v2_tl_w, C, K, [T, R, S], stride=[stride_d, stride_h, stride_w],
+    tl_w = np.ascontiguousarray(w.transpose(0, 2, 3, 4, 1))
+    tl_x = NPSparseConvTensor(values, sp_indices, spatial_shape, N)
+    tl_subm_y = subm_conv3d(tl_x, None, tl_w, C, K, [T, R, S], stride=[stride_d, stride_h, stride_w],
                                   padding=[pad_d, pad_h, pad_w], dilation=[dila_d, dila_h, dila_w], bias=False)
-    v2_tl_sparse_y = v2_sparse_conv3d(v2_tl_x, None, v2_tl_w, C, K, [T, R, S], stride=[stride_d, stride_h, stride_w],
+    tl_sparse_y = sparse_conv3d(tl_x, None, tl_w, C, K, [T, R, S], stride=[stride_d, stride_h, stride_w],
                                   padding=[pad_d, pad_h, pad_w], dilation=[dila_d, dila_h, dila_w], bias=False)
 
     check = True
@@ -624,8 +623,8 @@ if __name__ == '__main__':
         from spconv.core import ConvAlgo
         
         # get_indice_pairs check
-        tl_subm_outids, tl_subm_indice_pairs, tl_subm_indice_pair_num = v2_get_indice_pairs(sp_indices, N, spatial_shape, NPConvAlgo.Native, [T, R, S], [stride_d, stride_h, stride_w], [pad_d, pad_h, pad_w], [dila_d, dila_h, dila_w], [0, 0, 0], True, False, -1)
-        tl_sparse_outids, tl_sparse_indice_pairs, tl_sparse_indice_pair_num = v2_get_indice_pairs(sp_indices, N, spatial_shape, NPConvAlgo.Native, [T, R, S], [stride_d, stride_h, stride_w], [pad_d, pad_h, pad_w], [dila_d, dila_h, dila_w], [0, 0, 0], False, False, -1)
+        tl_subm_outids, tl_subm_indice_pairs, tl_subm_indice_pair_num = get_indice_pairs(sp_indices, N, spatial_shape, NPConvAlgo.Native, [T, R, S], [stride_d, stride_h, stride_w], [pad_d, pad_h, pad_w], [dila_d, dila_h, dila_w], [0, 0, 0], True, False, -1)
+        tl_sparse_outids, tl_sparse_indice_pairs, tl_sparse_indice_pair_num = get_indice_pairs(sp_indices, N, spatial_shape, NPConvAlgo.Native, [T, R, S], [stride_d, stride_h, stride_w], [pad_d, pad_h, pad_w], [dila_d, dila_h, dila_w], [0, 0, 0], False, False, -1)
 
         sp_subm_outids, sp_subm_indice_pairs, sp_subm_indice_pair_num = spconv.ops.get_indice_pairs(
                             torch.tensor(sp_indices).int(),
@@ -677,10 +676,10 @@ if __name__ == '__main__':
             print(f'spconv.SubMConv3d and subm_conv3d differ')
             print(f'sp_subm_y_indice_pairs: {sp_subm_y_indice_pairs.detach().cpu()}')
             print(f'tl_subm_indice_pairs: {tl_subm_indice_pairs}')
-        if not np.allclose(sp_subm_y.features.detach().cpu().numpy(), v2_tl_subm_y.features, atol=1e-4, rtol=1e-4):
+        if not np.allclose(sp_subm_y.features.detach().cpu().numpy(), tl_subm_y.features, atol=1e-4, rtol=1e-4):
             print(f'spconv.SubMConv3d and subm_conv3d differ')
             print(f'sp_subm_y: {sp_subm_y.features}')
-            print(f'v2_tl_subm_y: {v2_tl_subm_y.features}')
+            print(f'tl_subm_y: {tl_subm_y.features}')
 
         # Conv3d check
         sp_sparseconv3d = spconv.SparseConv3d(C, K, [T, R, S], stride=[stride_d, stride_h, stride_w], padding=[pad_d, pad_h, pad_w], dilation=[dila_d, dila_h, dila_w], bias=False, indice_key='sp_sparseconv3d', algo = ConvAlgo.Native)
@@ -690,13 +689,13 @@ if __name__ == '__main__':
         sp_sparse_y_indice_pairs = sp_sparse_y.indice_dict["sp_sparseconv3d"].indice_pairs
         assert np.allclose(sp_sparse_y_indice_pair_num.detach().cpu().numpy(), tl_sparse_indice_pair_num, atol=1e-4, rtol=1e-4)
         if not np.allclose(sp_sparse_y_indice_pairs.detach().cpu().numpy(), tl_sparse_indice_pairs, atol=1e-4, rtol=1e-4):
-            print(f'spconv.SubMConv3d and v2_subm_conv3d differ')
+            print(f'spconv.SubMConv3d and subm_conv3d differ')
             print(f'sp_subm_y_indice_pairs: {sp_subm_y_indice_pairs.detach().cpu()}')
             print(f'tl_subm_indice_pairs: {tl_subm_indice_pairs}')
-        if not np.allclose(sp_sparse_y.features.detach().cpu().numpy(), v2_tl_sparse_y.features, atol=1e-4, rtol=1e-4):
-            print(f'spconv.SparseConv3d and v2_sparse_conv3d differ')
+        if not np.allclose(sp_sparse_y.features.detach().cpu().numpy(), tl_sparse_y.features, atol=1e-4, rtol=1e-4):
+            print(f'spconv.SparseConv3d and sparse_conv3d differ')
             print(f'sp_sparse_y: {sp_sparse_y.features}')
-            print(f'v2_tl_sparse_y: {v2_tl_sparse_y.features}')
+            print(f'tl_sparse_y: {tl_sparse_y.features}')
 
 
         # torch.nn.Conv3d check
