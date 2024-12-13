@@ -19,7 +19,7 @@ $softmax$代入求导
 $$\frac{\partial \text{softmax}(x_{kl})}{\partial x_{ij}} =  \frac{ \frac{\partial e^{x_{kl}}}{\partial {x_{ij}}} . \sum_{p=0}^{N} e^{x_{kp}} -  e^{x_{kl}} . \frac{\partial \sum_{p=0}^{N} e^{x_{kp}}}{\partial {x_{ij}}}} {(\sum_{p=0}^{N} e^{x_{kp}})^2}$$
 
 ### 分三种情况
-情况一: $i \neq k$ 由于我们是关于列求$softmax$,所以$\text{softmax}(x_{kl})$ 不是关于 $x_{ij}$ 的函数所以 
+情况一: $i \neq k$ 由于我们是关于列求 $softmax$ ,所以 $\text{softmax}(x_{kl})$ 不是关于 $x_{ij}$ 的函数所以 
 
 $$\frac{\partial \text{softmax}(x_{kl})}{\partial x_{ij}} = 0$$
 
