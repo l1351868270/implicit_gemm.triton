@@ -1,7 +1,7 @@
 # forward
 $X \in {R}^{M \times N}$
 
-关于列计算$\text{softmax}$
+关于列计算$\text{softmax(X)}$
 
 $$\text{softmax}(x_{ij}) = \frac{e^{x_{ij}}}{\sum_{k=0}^{N} e^{x_{ik}}}$$
 
