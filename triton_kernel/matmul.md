@@ -39,6 +39,7 @@ $=\sum_{p=0}^{N-1} \frac{\partial f(AB)}{\partial c_{pj}} . a_{pi}$
 $\frac{\partial f(AB)}{\partial B} = A^T . \frac{\partial f(AB)}{\partial C}$ 
 
 同理
+
 $\frac{\partial f(AB)}{\partial a_{ij}}$
 
 $=\sum_{p=0}^{N-1} \sum_{q=0}^{N-1} \frac{\partial f(AB)}{\partial c_{pq}} . \frac{\partial c_{pq}}{\partial a_{ij}}$
