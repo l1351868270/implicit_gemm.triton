@@ -37,4 +37,4 @@ $$\frac{\partial \text{softmax}(x_{kl})}{\partial x_{ij}} = \frac{\partial \text
 
 情况三:  $i = k$, $l = j$ 此时
 
-$$\frac{\partial \text{softmax}(x_{kl})}{\partial x_{ij}} = \frac{\partial \text{softmax}(x_{ij})}{\partial x_{ij}} = \frac{e^{x_{ij}}.\sum_{p=0}^{N} e^{x_{ip}}-e^{x_{ij}}.e^{x_{ij}}}{(\sum_{p=0}^{N} e^{x_{ip}}) ^ 2} = {softmax}(x_{ij})-{softmax}(x_{ij})^2$$
+$\frac{\partial \text{softmax}(x_{kl})}{\partial x_{ij}} \newline= \frac{\partial \text{softmax}(x_{ij})}{\partial x_{ij}} \newline= \frac{e^{x_{ij}}.\sum_{p=0}^{N} e^{x_{ip}}-e^{x_{ij}}.e^{x_{ij}}}{(\sum_{p=0}^{N} e^{x_{ip}}) ^ 2} \newline= {softmax}(x_{ij})-{softmax}(x_{ij})^2$
