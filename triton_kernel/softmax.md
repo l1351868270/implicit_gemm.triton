@@ -52,3 +52,14 @@ $= \frac{e^{x_{ij}}.\sum_{p=0}^{N} e^{x_{ip}}-e^{x_{ij}}.e^{x_{ij}}}{(\sum_{p=0}
 $= {softmax}(x_{ij})-{softmax}(x_{ij})^2$
 
 ## 链式法则
+$\frac{\partial f(softmax(X))}{\partial x_{ij}}$
+
+$=\sum_{p=0}^{N-1} \sum_{q=0}^{N-1} \frac{\partial f(softmax(X))}{\partial softmax(x_{pq})} . \frac{\partial softmax(x_{pq})}{\partial x_{ij}}$
+
+$=\sum_{q=0}^{N-1} \frac{\partial f(softmax(X))}{\partial softmax(x_{iq})} . \frac{\partial softmax(x_{iq})}{\partial x_{ij}}$
+
+$=\frac{\partial f(softmax(X))}{\partial softmax(x_{ij})} . (softmax(x_{ij}) - softmax(x_{ij})^2) + \sum_{q \neq j} \frac{\partial f(softmax(X))}{\partial softmax(x_{iq})}(-softmax(x_{iq}) . softmax(x_{ij}))$
+
+$=softmax(x_{ij}) . \frac{\partial f(softmax(X))}{\partial softmax(x_{ij})} - softmax(x_{ij}) . \sum_{q=0}^{N-1} \frac{\partial f(softmax(X))}{\partial softmax(x_{iq})} . softmax(x_{iq})$
+
+$=softmax(x_{ij})(\frac{\partial f(softmax(X))}{\partial softmax(x_{ij})} - \sum softmax(x_{iq}).\frac{\partial f(softmax(X))}{\partial softmax(x_{iq})})$
