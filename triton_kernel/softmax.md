@@ -69,5 +69,5 @@ $=softmax(x_{ij})(\frac{\partial f(softmax(X))}{\partial softmax(x_{ij})} - \sum
 
 $\frac{\partial f(softmax(X))}{\partial x_{i:}}$
 
-$=softmax(x_{i:})(\frac{\partial f(softmax(X))}{\partial softmax(x_{i:})} - \sum softmax(x_{iq}).\frac{\partial f(softmax(X))}{\partial softmax(x_{iq})})$
+$=softmax(x_{i:})(\frac{\partial f(softmax(X))}{\partial softmax(x_{i:})} - \sum_{q} softmax(x_{iq}).\frac{\partial f(softmax(X))}{\partial softmax(x_{iq})})$
 
