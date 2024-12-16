@@ -63,3 +63,11 @@ $=\frac{\partial f(softmax(X))}{\partial softmax(x_{ij})} . (softmax(x_{ij}) - s
 $=softmax(x_{ij}) . \frac{\partial f(softmax(X))}{\partial softmax(x_{ij})} - softmax(x_{ij}) . \sum_{q=0}^{N-1} \frac{\partial f(softmax(X))}{\partial softmax(x_{iq})} . softmax(x_{iq})$
 
 $=softmax(x_{ij})(\frac{\partial f(softmax(X))}{\partial softmax(x_{ij})} - \sum softmax(x_{iq}).\frac{\partial f(softmax(X))}{\partial softmax(x_{iq})})$
+
+
+所以 $\frac{\partial f(softmax(X))}{\partial x_{ij}}$ 只与第i行有关, 记 $x_{i:}$ 为第 $i$ 行的任意一个元素
+
+$\frac{\partial f(softmax(X))}{\partial x_{i:}}$
+
+$=softmax(x_{i:})(\frac{\partial f(softmax(X))}{\partial softmax(x_{i:})} - \sum softmax(x_{iq}).\frac{\partial f(softmax(X))}{\partial softmax(x_{iq})})$
+
