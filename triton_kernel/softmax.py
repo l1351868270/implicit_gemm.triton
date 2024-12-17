@@ -118,6 +118,7 @@ class _tt_softmax(torch.autograd.Function):
 tt_softmax = _tt_softmax.apply
 
 
+# python -m pytest -s triton_kernel/softmax.py
 @pytest.mark.parametrize('M, N', [(1823, 781)])
 def test_2d_softmax(M, N):
     x = torch.randn(M, N, requires_grad=True, device='cuda')
