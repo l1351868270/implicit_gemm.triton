@@ -52,6 +52,7 @@ def _tt_softmax_fwd_kernel(output_ptr, input_ptr, input_row_stride, output_row_s
 @triton.jit
 def _tt_softmax_bwd_kernel(ds_ptr, p_ptr, dp_ptr, ds_row_stride, p_row_stride, dp_row_stride, n_rows, n_cols,
                            BLOCK_SIZE: tl.constexpr):
+    # https://github.com/l1351868270/implicit_gemm.triton/blob/main/triton_kernel/softmax.md
     row_idx = tl.program_id(0)
     p_start_ptr = p_ptr + row_idx * p_row_stride
     dp_start_ptr = dp_ptr + row_idx * dp_row_stride
