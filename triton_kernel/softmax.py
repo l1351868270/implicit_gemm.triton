@@ -1,5 +1,5 @@
 
-# Adapted from https://github.com/triton-lang/triton/blob/main/python/tutorials/06-fused-attention.py
+# Adapted from https://github.com/triton-lang/triton/blob/main/python/tutorials/02-fused-softmax.py
 import torch
 import triton
 import triton.language as tl
