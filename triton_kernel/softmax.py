@@ -177,25 +177,6 @@ def test_4d_softmax(B, N, H, D):
 
 perf_configs = []
 
-# for mode in ['fwd', 'bwd']:
-for mode in ['bwd']:
-    perf_configs.append(
-        triton.testing.Benchmark(
-            x_names=['N'],
-            x_vals=[128 * i for i in range(2, 10)],
-            line_arg='provider',
-            line_vals=['triton', 'torch', 'naive'],
-            line_names=['Triton', 'Torch', 'naive'],
-            styles=[('blue', '-'), ('green', '-'), ('red', '-')],
-            ylabel='GB/s',
-            plot_name="softmax-performance",
-            args={
-                'M': 4096,
-                'mode': mode,
-            },
-        )
-    )
-
 
 @triton.testing.perf_report(perf_configs)
 def benchmark(M, N, mode, provider, device='cuda'):
@@ -233,14 +214,73 @@ def benchmark(M, N, mode, provider, device='cuda'):
 if __name__ == '__main__':
     import argparse
     args = argparse.ArgumentParser()
+    args.add_argument('--test', action='store_true')
     args.add_argument('--bench', action='store_true')
     args.add_argument('--plot', action='store_true')
-    args.add_argument('--print_data', action='store_true')
     args.add_argument('--mode', choices=('fwd', 'bwd'), default='fwd')
     args = args.parse_args()
+    test = args.test
+    bench = args.bench
     plot = args.plot
-    print_data = args.print_data
-    benchmark.run(show_plots=plot, print_data=print_data)
+    print_data = bench
+    mode = args.mode
+    # for mode in ['fwd', 'bwd']:
+    if mode == 'fwd':
+        perf_configs.append(
+            triton.testing.Benchmark(
+                x_names=['N'],
+                x_vals=[128 * i for i in range(2, 10)],
+                line_arg='provider',
+                line_vals=['triton', 'torch', 'naive'],
+                line_names=['Triton', 'Torch', 'naive'],
+                styles=[('blue', '-'), ('green', '-'), ('red', '-')],
+                ylabel='GB/s',
+                plot_name="softmax-performance",
+                args={
+                    'M': 4096,
+                    'mode': 'fwd',
+                },
+            )
+        )
+    if mode == 'bwd':
+        perf_configs.append(
+            triton.testing.Benchmark(
+                x_names=['N'],
+                x_vals=[128 * i for i in range(2, 10)],
+                line_arg='provider',
+                line_vals=['triton', 'torch', 'naive'],
+                line_names=['Triton', 'Torch', 'naive'],
+                styles=[('blue', '-'), ('green', '-'), ('red', '-')],
+                ylabel='GB/s',
+                plot_name="softmax-performance",
+                args={
+                    'M': 4096,
+                    'mode': 'bwd',
+                },
+            )
+        )
+
+    if bench:
+        benchmark.run(show_plots=plot, print_data=print_data)
+
+    if test:
+        M = 4096
+        N = 129
+        x = torch.randn(M, N, requires_grad=True, device='cuda')
+        y = torch.softmax(x, dim=-1)
+        dp = torch.randn_like(x)
+        y.backward(dp)
+        dx, x.grad = x.grad.clone(), None
+        naive_y = naive_softmax(x)
+        naive_y.backward(dp)
+        naive_dx, x.grad = x.grad.clone(), None
+        assert torch.allclose(dx, naive_dx, rtol=1e-3, atol=1e-3)
+        assert torch.allclose(y, naive_y, rtol=1e-3, atol=1e-3)
+        tt_y = tt_softmax(x)
+        tt_y.backward(dp)
+        tt_dx, x.grad = x.grad.clone(), None
+        assert torch.allclose(y, tt_y, rtol=1e-3, atol=1e-3)
+        assert torch.allclose(dx, tt_dx, rtol=1e-3, atol=1e-3)
 
 
 
