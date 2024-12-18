@@ -5,7 +5,7 @@ import triton
 import triton.language as tl
 from triton.runtime import driver
 import pytest
-
+from typing import Optional, Tuple
 
 class _naive_softmax(torch.autograd.Function):
     @staticmethod
@@ -31,7 +31,7 @@ naive_softmax = _naive_softmax.apply
 
 
 @triton.jit
-def _tt_softmax_fwd_kernel(output_ptr, input_ptr, input_row_stride, output_row_stride, n_rows, n_cols,
+def _ld_softmax_fwd_kernel(output_ptr, input_ptr, input_row_stride, output_row_stride, n_rows, n_cols,
                            BLOCK_SIZE: tl.constexpr):
     row_idx = tl.program_id(0)
     row_start_ptr = input_ptr + row_idx * input_row_stride
@@ -50,7 +50,7 @@ def _tt_softmax_fwd_kernel(output_ptr, input_ptr, input_row_stride, output_row_s
 
 
 @triton.jit
-def _tt_softmax_bwd_kernel(ds_ptr, p_ptr, dp_ptr, ds_row_stride, p_row_stride, dp_row_stride, n_rows, n_cols,
+def _ld_softmax_bwd_kernel(ds_ptr, p_ptr, dp_ptr, ds_row_stride, p_row_stride, dp_row_stride, n_rows, n_cols,
                            BLOCK_SIZE: tl.constexpr):
     # https://github.com/l1351868270/implicit_gemm.triton/blob/main/triton_kernel/softmax.md
     row_idx = tl.program_id(0)
@@ -69,7 +69,7 @@ def _tt_softmax_bwd_kernel(ds_ptr, p_ptr, dp_ptr, ds_row_stride, p_row_stride, d
     tl.store(ds_ptrs, ds_row, mask=mask)
 
 
-class _tt_softmax(torch.autograd.Function):
+class _ld_softmax(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x: torch.Tensor):
         shape = x.shape
@@ -77,7 +77,7 @@ class _tt_softmax(torch.autograd.Function):
         n_rows, n_cols = x.shape
         BLOCK_SIZE = triton.next_power_of_2(n_cols)
         p = torch.empty_like(x)
-        _tt_softmax_fwd_kernel[(n_rows,)](
+        _ld_softmax_fwd_kernel[(n_rows,)](
             p,
             x,
             x.stride(0),
@@ -100,7 +100,7 @@ class _tt_softmax(torch.autograd.Function):
         n_rows, n_cols = p.shape
         BLOCK_SIZE = triton.next_power_of_2(n_cols)
         ds = torch.empty_like(p)
-        _tt_softmax_bwd_kernel[(n_rows,)](
+        _ld_softmax_bwd_kernel[(n_rows,)](
             ds,
             p,
             dp,
@@ -116,7 +116,31 @@ class _tt_softmax(torch.autograd.Function):
         return ds.view(*shape)
         
 
-tt_softmax = _tt_softmax.apply
+ld_softmax = _ld_softmax.apply
+
+
+# Adapted from https://github.com/pytorch/pytorch/blob/main/torch/nn/modules/activation.py
+# only replace forward
+class LDSoftmax(torch.nn.Module):
+    __constants__ = ['dim']
+    dim: Optional[int]
+
+    def __init__(self, dim: Optional[int] = None) -> None:
+        super().__init__()
+        self.dim = dim
+
+    def __setstate__(self, state):
+        super().__setstate__(state)
+        if not hasattr(self, 'dim'):
+            self.dim = None
+
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
+        if self.dim is not None and self.dim != -1 and self.dim != input.dim() - 1:
+            raise NotImplementedError("Only last dimension ld softmax is supported")
+        return ld_softmax(input)
+
+    def extra_repr(self) -> str:
+        return f'dim={self.dim}'
 
 
 # python -m pytest -s triton_kernel/softmax.py
@@ -132,7 +156,7 @@ def test_2d_softmax(M, N):
     naive_dx, x.grad = x.grad.clone(), None
     assert torch.allclose(dx, naive_dx, rtol=1e-3, atol=1e-3)
     assert torch.allclose(y, naive_y, rtol=1e-3, atol=1e-3)
-    tt_y = tt_softmax(x)
+    tt_y = ld_softmax(x)
     tt_y.backward(dp)
     tt_dx, x.grad = x.grad.clone(), None
     assert torch.allclose(y, tt_y, rtol=1e-3, atol=1e-3)
@@ -151,7 +175,7 @@ def test_3d_softmax(B, N, D):
     naive_dx, x.grad = x.grad.clone(), None
     assert torch.allclose(dx, naive_dx, rtol=1e-3, atol=1e-3)
     assert torch.allclose(y, naive_y, rtol=1e-3, atol=1e-3)
-    tt_y = tt_softmax(x)
+    tt_y = ld_softmax(x)
     tt_y.backward(dp)
     tt_dx, x.grad = x.grad.clone(), None
     assert torch.allclose(y, tt_y, rtol=1e-3, atol=1e-3)
@@ -170,11 +194,34 @@ def test_4d_softmax(B, N, H, D):
     naive_dx, x.grad = x.grad.clone(), None
     assert torch.allclose(dx, naive_dx, rtol=1e-3, atol=1e-3)
     assert torch.allclose(y, naive_y, rtol=1e-3, atol=1e-3)
-    tt_y = tt_softmax(x)
+    tt_y = ld_softmax(x)
     tt_y.backward(dp)
     tt_dx, x.grad = x.grad.clone(), None
     assert torch.allclose(y, tt_y, rtol=1e-3, atol=1e-3)
     assert torch.allclose(dx, tt_dx, rtol=1e-3, atol=1e-3)
+
+
+# python -m pytest -s triton_kernel/softmax.py -k test_Softmax
+@pytest.mark.parametrize('M, N', [(1823, 781)])
+def test_Softmax(M, N):
+
+    m = torch.nn.Softmax(dim=1)
+    x = torch.randn(M, N, requires_grad=True, device='cuda')
+    y = m(x)
+    target = torch.randn_like(x)
+    loss_fn = torch.nn.MSELoss()
+    loss = loss_fn(y, target)
+    loss.backward()
+    dx, x.grad = x.grad.clone(), None
+
+    ld_m = LDSoftmax(dim=-1)
+    ld_y = ld_m(x)
+    loss = loss_fn(ld_y, target)
+    loss.backward()
+    ld_dx, x.grad = x.grad.clone(), None
+
+    assert torch.allclose(y, ld_y, rtol=1e-3, atol=1e-3)
+    assert torch.allclose(dx, ld_dx, rtol=1e-3, atol=1e-3)
 
 
 perf_configs = []
@@ -193,7 +240,7 @@ def benchmark(M, N, mode, provider, device='cuda'):
             fn = lambda: o.backward(do, retain_graph=True)
         ms = triton.testing.do_bench(fn)
     if provider == 'triton':
-        fn = lambda: tt_softmax(x)
+        fn = lambda: ld_softmax(x)
         if mode == 'bwd':
             o =fn()
             do = torch.randn_like(o)
@@ -278,7 +325,7 @@ if __name__ == '__main__':
         naive_dx, x.grad = x.grad.clone(), None
         assert torch.allclose(dx, naive_dx, rtol=1e-3, atol=1e-3)
         assert torch.allclose(y, naive_y, rtol=1e-3, atol=1e-3)
-        tt_y = tt_softmax(x)
+        tt_y = ld_softmax(x)
         tt_y.backward(dp)
         tt_dx, x.grad = x.grad.clone(), None
         assert torch.allclose(y, tt_y, rtol=1e-3, atol=1e-3)
