@@ -47,8 +47,9 @@ $\frac {\partial rms(x)_{k}}{\partial x_{ij}} = 0$
 </p>
 情况二: $k = i$
 
+<p>
 $\frac {\partial rms(x)_{k}}{\partial x_{ij}}$
-
+</p>
 $=\frac {\partial rms(x)_{i}}{\partial x_{ij}}$
 
 $=\frac{1}{2\sqrt{\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2}}.\frac {\partial \frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2}{\partial x_{ij}}$
