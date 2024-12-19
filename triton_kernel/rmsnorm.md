@@ -38,19 +38,26 @@ $\frac{\partial \frac{1}{x}}{\partial x} = -\frac{1}{x^2}$
 $\frac {\partial \frac{ f(x)}{ g(x)}} {\partial x} = \frac{\frac {\partial f(x)}{\partial x} . g(x) \ - f(x) . \frac {\partial g(x)}{\partial x}} {g(x)^2}$
 
 $rms(x)_i$ 求导
-<p>
-$\frac {\partial rms(x)_{k}}{\partial x_{ij}}$
-</p>
-情况一: $k \neq i$
-<p>
-$\frac {\partial rms(x)_{k}}{\partial x_{ij}} = 0$
-</p>
-情况二: $k = i$
 
 <p>
 $\frac {\partial rms(x)_{k}}{\partial x_{ij}}$
 </p>
+
+情况一:  $k \neq i$
+
+<p>
+$\frac {\partial rms(x)_{k}}{\partial x_{ij}} = 0$
+</p>
+
+情况二:  $k = i$
+
+<p>
+$\frac {\partial rms(x)_{k}}{\partial x_{ij}}$
+</p>
+
+<p>
 $=\frac {\partial rms(x)_{i}}{\partial x_{ij}}$
+</p>
 
 $=\frac{1}{2\sqrt{\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2}}.\frac {\partial \frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2}{\partial x_{ij}}$
 
