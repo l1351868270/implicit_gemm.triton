@@ -42,9 +42,9 @@ $rms(x)_i$ 求导
 $\frac {\partial rms(x)_{k}}{\partial x_{ij}}$
 </p>
 情况一: $k \neq i$
-
+<p>
 $\frac {\partial rms(x)_{k}}{\partial x_{ij}} = 0$
-
+</p>
 情况二: $k = i$
 
 $\frac {\partial rms(x)_{k}}{\partial x_{ij}}$
