@@ -7,7 +7,9 @@ $X \in {R}^{M \times N}$
   $rms(x)_i=\sqrt{\frac{1}{N}\sum_{j=0}^{N-1}x_{ij}^2}$
 </p>
 
+<p>
 $rrms(x)_i = \frac{1}{rms(x)_i} = \frac{1}{\sqrt{\frac{1}{N}\sum_{j=0}^{N-1}x_{ij}^2}}$
+</p>
 
 $rmsnorm(x)_{ij} = \frac{x_{ij}}{rms(x)_i}.γ_{ij} = rrms(x)_i.x_{ij}.γ_{ij}$
 
