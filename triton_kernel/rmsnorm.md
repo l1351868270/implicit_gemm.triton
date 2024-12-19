@@ -3,7 +3,9 @@ $X \in {R}^{M \times N}$
 
 关于行计算 ${rmsnorm(X)}$
 
-$rms(x)_i$ $=\sqrt{\frac{1}{N}\sum_{j=0}^{N-1}x_{ij}^2}$
+<p>
+  $rms(x)_i=\sqrt{\frac{1}{N}\sum_{j=0}^{N-1}x_{ij}^2}$
+</p>
 
 $rrms(x)_i = \frac{1}{rms(x)_i} = \frac{1}{\sqrt{\frac{1}{N}\sum_{j=0}^{N-1}x_{ij}^2}}$
 
