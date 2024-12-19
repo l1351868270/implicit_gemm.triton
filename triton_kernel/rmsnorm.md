@@ -19,7 +19,9 @@ $u = \frac{1}{N}\sum_{j=0}^{N-1}{x_{ij}^2}$
 
 $rms(x)_i = \sqrt{u}$
 
+<p>
 $rmsnorm(x)_{ij} = \frac {x_{ij}}{\sqrt{u}}.γ_{ij}$
+</p>
 
 # backward
 ## 求导一
