@@ -234,18 +234,29 @@ $=df_{ij}.{rrms(x)_i}.γ_{ij} - \frac{x_{ij}.(rrms(x)_i)^2}{N}.\sum_{j = 0} ^ {N
 
 ## 链式法则二
 
+<p>
 $\frac{\partial f(rmsnorm(X))}{\partial x_{ij}}$
+</p>
 
+<p>
 $=\sum_{k=0}^{M-1}\sum_{l=0}^{N-1}(\frac{\partial f(rmsnorm(X))}{\partial rmsnorm(x)_{kl}} . \frac{\partial rmsnorm(x)_{kl}}{\partial x_{ij}})$
+</p>
 
+<p>
 $=\sum_{k=0}^{M-1}\sum_{l=0}^{N-1}(df_{kl} . \frac{\partial rmsnorm(x)_{kl}}{\partial x_{ij}})$
+</p>
 
+<p>
 $=\sum_{l=0}^{N-1}(df_{il} . \frac{\partial rmsnorm(x)_{il}}{\partial x_{ij}})$
+</p>
 
+<p>
 $=df_{ij}.[-\frac{x_{ij}^2}{N}(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{3}{2}}.γ_{ij} + (\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{1}{2}}.γ_{ij}] + \sum_{l \neq j}[-\frac{x_{ij}}{N}(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{3}{2}}.x_{il}.γ_{il}]$
+</p>
 
+<p>
 $=df_{ij}.(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{1}{2}}.γ_{ij} - \frac{x_{ij}}{N}\sum_{l}(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{3}{2}}.df_{il}.x_{il}.γ_{il} $
-
+</p>
 
 # 参考
 https://pytorch.org/docs/stable/generated/torch.nn.RMSNorm.html
