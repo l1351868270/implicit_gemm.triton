@@ -73,30 +73,50 @@ ${rmsnorm(X)}$ 求导
 分三种情况:
 情况一: $k \neq i$
 
+<p>
 $\frac {\partial rmsnorm(x)_{kl}}{\partial x_{ij}} = 0$
+</p>
 
 情况二: $k = i, l \neq j$
 
+<p>
 $\frac {\partial rmsnorm(x)_{kl}}{\partial x_{ij}}$
+</p>
 
+<p>
 $ = \frac{\frac {\partial x_{kl}}{\partial x_{ij}}.rms(x)_k-x_{kl}.\frac {\partial rms(x)_k}{\partial x_{ij}}}{(rms(x)_k)^2}.γ_{kl}$
+</p>
 
+<p>
 $ = \frac{\frac {\partial x_{il}}{\partial x_{ij}}.rms(x)_i-x_{il}.\frac {\partial rms(x)_i}{\partial x_{ij}}}{(rms(x)_i)^2}.γ_{il}$
+</p>
 
+<p>
 $ = \frac{-x_{il}.\frac {\partial rms(x)_i}{\partial x_{ij}}}{(rms(x)_i)^2}.γ_{il}$
+</p>
 
+<p>
 $ = \frac{-x_{il}.x_{ij}}{N.(rms(x)_i)^3}.γ_{il}$
+</p>
 
 情况三: $k = i, l = j$
 
+<p>
 $\frac {\partial rmsnorm(x)_{kl}}{\partial x_{ij}}$
+</p>
 
+<p>
 $ = \frac{\frac {\partial x_{kl}}{\partial x_{ij}}.rms(x)_k-x_{kl}.\frac {\partial rms(x)_k}{\partial x_{ij}}}{(rms(x)_k)^2}.γ_{kl}$
+</p>
 
+<p>
 $ = \frac{\frac {\partial x_{ij}}{\partial x_{ij}}.rms(x)_i-x_{ij}.\frac {\partial rms(x)_i}{\partial x_{ij}}}{(rms(x)_i)^2}.γ_{ij}$
+</p>
 
-
+<p>
 $ = (\frac {1}{rms(x)_i} + \frac{-x_{ij}.x_{ij}}{N.(rms(x)_i)^3}).γ_{ij}$
+</p>
+
 # 求导二
 
 $rrms(x)_i$ 求导
