@@ -59,14 +59,21 @@ $\frac {\partial rms(x)_{k}}{\partial x_{ij}}$
 $=\frac {\partial rms(x)_{i}}{\partial x_{ij}}$
 </p>
 
+<p>
 $=\frac{1}{2\sqrt{\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2}}.\frac {\partial \frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2}{\partial x_{ij}}$
+</p>
 
+<p>
 $=\frac{1}{2\sqrt{\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2}}.\frac {2x_{ij}}{N}$
+</p>
 
+<p>
 $=\frac{x_{ij}}{N\sqrt{\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2}}$
+</p>
 
+<p>
 $=\frac{x_{ij}}{Nrms(x)_i}$
-
+</p>
 
 ${rmsnorm(X)}$ 求导
 
