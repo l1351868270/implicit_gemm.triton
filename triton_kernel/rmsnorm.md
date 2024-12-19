@@ -38,9 +38,9 @@ $\frac{\partial \frac{1}{x}}{\partial x} = -\frac{1}{x^2}$
 $\frac {\partial \frac{ f(x)}{ g(x)}} {\partial x} = \frac{\frac {\partial f(x)}{\partial x} . g(x) \ - f(x) . \frac {\partial g(x)}{\partial x}} {g(x)^2}$
 
 $rms(x)_i$ 求导
-
+<p>
 $\frac {\partial rms(x)_{k}}{\partial x_{ij}}$
-
+</p>
 情况一: $k \neq i$
 
 $\frac {\partial rms(x)_{k}}{\partial x_{ij}} = 0$
