@@ -24,7 +24,8 @@ $rmsnorm(x)_{ij} = \frac {x_{ij}}{\sqrt{u}}.γ_{ij}$
 </p>
 
 # backward
-## 求导一
+## x求导
+### x求导一
 通用求导公式
 
 $\frac{\partial x^n}{\partial x} = nx^{n-1}$
@@ -124,7 +125,7 @@ $=\frac{\frac {\partial x_{ij}}{\partial x_{ij}}.rms(x)_i-x_{ij}.\frac {\partial
 $=(\frac {1}{rms(x)_i} + \frac{-x_{ij}.x_{ij}}{N.(rms(x)_i)^3}).γ_{ij}$
 </p>
 
-# 求导二
+### x求导二
 
 $rrms(x)_i$ 求导
 
@@ -194,7 +195,9 @@ $=\frac{\partial rrms(x)_i}{\partial x_{ij}}.{x_{il}.γ_{il}}+rrms(x)_i.\frac {x
 $=-\frac{x_{ij}^2}{N}(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{3}{2}}.γ_{ij} + (\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{1}{2}}.γ_{ij}$
 </p>
 
-## 链式法则一
+# 链式法则
+
+## x链式法则一
 
 <p>
 $\frac{\partial f(rmsnorm(X))}{\partial x_{ij}}$
@@ -232,7 +235,7 @@ $=df_{ij}.\frac {1}{rms(x)_i}.γ_{ij} - \frac{x_{ij}}{N.(rms(x)_i)^2}.\sum_{j = 
 $=df_{ij}.{rrms(x)_i}.γ_{ij} - \frac{x_{ij}.(rrms(x)_i)^2}{N}.\sum_{j = 0} ^ {N-1} df_{il}.rmsnorm(x_{il})$
 </p>
 
-## 链式法则二
+## x链式法则二
 
 <p>
 $\frac{\partial f(rmsnorm(X))}{\partial x_{ij}}$
