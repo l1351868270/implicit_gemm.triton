@@ -196,23 +196,41 @@ $=-\frac{x_{ij}^2}{N}(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{3}{2}}.γ_{ij
 
 ## 链式法则一
 
+<p>
 $\frac{\partial f(rmsnorm(X))}{\partial x_{ij}}$
+</p>
 
+<p>
 $=\sum_{k=0}^{M-1}\sum_{l=0}^{N-1}(\frac{\partial f(rmsnorm(X))}{\partial rmsnorm(x)_{kl}} . \frac{\partial rmsnorm(x)_{kl}}{\partial x_{ij}})$
+</p>
 
+<p>
 $=\sum_{k=0}^{M-1}\sum_{l=0}^{N-1}(df_{kl} . \frac{\partial rmsnorm(x)_{kl}}{\partial x_{ij}})$
+</p>
 
+<p>
 $=\sum_{l=0}^{N-1}(df_{il} . \frac{\partial rmsnorm(x)_{il}}{\partial x_{ij}})$
+</p>
 
+<p>
 $=df_{ij} .(\frac {1}{rms(x)_i} + \frac{-x_{ij}.x_{ij}}{N.(rms(x)_i)^3}).γ_{ij} + \sum_{l \neq j} df_{il} . \frac{-x_{il}.x_{ij}}{N.(rms(x)_i)^3}.γ_{il}$
+</p>
 
+<p>
 $=df_{ij}.\frac {1}{rms(x)_i}.γ_{ij} - \sum_{j = 0} ^ {N-1} df_{il} . \frac{x_{il}.x_{ij}}{N.(rms(x)_i)^3}.γ_{il}$
+</p>
 
+<p>
 $=df_{ij}.\frac {1}{rms(x)_i}.γ_{ij} - \sum_{j = 0} ^ {N-1} df_{il}.\frac{x_{ij}}{N.(rms(x)_i)^2}.rmsnorm(x_{il})$
+</p>
 
+<p>
 $=df_{ij}.\frac {1}{rms(x)_i}.γ_{ij} - \frac{x_{ij}}{N.(rms(x)_i)^2}.\sum_{j = 0} ^ {N-1} df_{il}.rmsnorm(x_{il})$
+</p>
 
+<p>
 $=df_{ij}.{rrms(x)_i}.γ_{ij} - \frac{x_{ij}.(rrms(x)_i)^2}{N}.\sum_{j = 0} ^ {N-1} df_{il}.rmsnorm(x_{il})$
+</p>
 
 ## 链式法则二
 
