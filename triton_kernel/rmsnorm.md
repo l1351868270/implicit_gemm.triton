@@ -195,6 +195,35 @@ $=\frac{\partial rrms(x)_i}{\partial x_{ij}}.{x_{il}.γ_{il}}+rrms(x)_i.\frac {x
 $=-\frac{x_{ij}^2}{N}(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{3}{2}}.γ_{ij} + (\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{1}{2}}.γ_{ij}$
 </p>
 
+## γ求导
+
+$\frac {\partial rmsnorm(γ)_{kl}}{\partial γ_{ij}}$
+
+分三种情况
+
+情况一:
+
+情况一: $k \neq i$
+
+$\frac {\partial rmsnorm(γ)_{kl}}{\partial γ_{ij}} = 0$
+
+情况二: $k = i, l \neq j$
+
+$\frac {\partial rmsnorm(γ)_{kl}}{\partial γ_{ij}}$
+
+$=\frac {\partial rmsnorm(γ)_{il}}{\partial γ_{ij}}$
+
+$=0$
+
+情况三: $k = i, l = j$
+
+$\frac {\partial rmsnorm(γ)_{kl}}{\partial γ_{ij}}$
+
+$=\frac {\partial rmsnorm(γ)_{ij}}{\partial γ_{ij}}$
+
+$=(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{1}{2}}.x_{ij}$
+
+
 # 链式法则
 
 ## x链式法则一
@@ -260,6 +289,20 @@ $=df_{ij}.[-\frac{x_{ij}^2}{N}(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{3}{2
 <p>
 $=df_{ij}.(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{1}{2}}.γ_{ij} - \frac{x_{ij}}{N}\sum_{l}(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{3}{2}}.df_{il}.x_{il}.γ_{il} $
 </p>
+
+## γ链式法则
+
+$\frac{\partial f(rmsnorm(γ))}{\partial γ_{ij}}$
+
+$=\sum_{k=0}^{M-1}\sum_{l=0}^{N-1}(\frac{\partial f(rmsnorm(γ))}{\partial rmsnorm(γ)_{kl}} . \frac{\partial rmsnorm(γ)_{kl}}{\partial γ_{ij}})$
+
+$=\sum_{k=0}^{M-1}\sum_{l=0}^{N-1}df_{kl} . \frac{\partial rmsnorm(γ)_{kl}}{\partial γ_{ij}}$
+
+$=df_{ij} . \frac{\partial rmsnorm(γ)_{kl}}{\partial γ_{ij}}$
+
+$=df_{ij} . \frac{\partial rmsnorm(γ)_{kl}}{\partial γ_{ij}}$
+
+$=df_{ij} . (\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{1}{2}}.x_{ij}$
 
 # 参考
 https://pytorch.org/docs/stable/generated/torch.nn.RMSNorm.html
