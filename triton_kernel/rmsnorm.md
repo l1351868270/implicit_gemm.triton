@@ -128,7 +128,9 @@ $=(\frac {1}{rms(x)_i} + \frac{-x_{ij}.x_{ij}}{N.(rms(x)_i)^3}).γ_{ij}$
 
 $rrms(x)_i$ 求导
 
+<p>
 $\frac {\partial rrms(x)_{k}}{\partial x_{ij}}$
+</p>
 
 $=\frac {\partial \frac{1}{\sqrt{\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2}}}{\partial x_{ij}}$
 
@@ -144,31 +146,53 @@ ${rmsnorm(X)}$ 求导
 分三种情况:
 情况一: $k \neq i$
 
+<p>
 $\frac {\partial rmsnorm(x)_{kl}}{\partial x_{ij}} = 0$
+</p>
 
 情况二: $k = i, l \neq j$
 
+<p>
 $\frac {\partial rmsnorm(x)_{kl}}{\partial x_{ij}}$
+</p>
 
+<p>
 $=\frac{\partial rrms(x)_k.x_{kl}.γ_{kl}}{\partial x_{ij}}$
+</p>
 
+<p>
 $=\frac{\partial rrms(x)_i.x_{il}.γ_{il}}{\partial x_{ij}}$
+</p>
 
+<p>
 $=\frac{\partial rrms(x)_i}{\partial x_{ij}}.{x_{il}.γ_{il}}+rrms(x)_i.\frac {x_{il}}{\partial x_{ij}}$
+</p>
 
+<p>
 $=-\frac{x_{ij}}{N}(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{3}{2}}.x_{il}.γ_{il}$
+</p>
 
 情况三: $k = i, l \neq j$
 
+<p>
 $\frac {\partial rmsnorm(x)_{kl}}{\partial x_{ij}}$
+</p>
 
+<p>
 $=\frac{\partial rrms(x)_k.x_{kl}.γ_{kl}}{\partial x_{ij}}$
+</p>
 
+<p>
 $=\frac{\partial rrms(x)_i.x_{il}.γ_{il}}{\partial x_{ij}}$
+<p>
 
+<p>
 $=\frac{\partial rrms(x)_i}{\partial x_{ij}}.{x_{il}.γ_{il}}+rrms(x)_i.\frac {x_{il}}{\partial x_{ij}}$
+</p>
 
+<p>
 $=-\frac{x_{ij}^2}{N}(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{3}{2}}.γ_{ij} + (\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{1}{2}}.γ_{ij}$
+</p>
 
 ## 链式法则一
 
