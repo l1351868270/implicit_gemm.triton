@@ -320,11 +320,7 @@ $=\sum_{k=0}^{M-1}\sum_{l=0}^{N-1}df_{kl} . \frac{\partial rmsnorm(γ)_{kl}}{\pa
 </p>
 
 <p>
-$=df_{ij} . \frac{\partial rmsnorm(γ)_{kl}}{\partial γ_{ij}}$
-</p>
-
-<p>
-$=df_{ij} . \frac{\partial rmsnorm(γ)_{kl}}{\partial γ_{ij}}$
+$=df_{ij} . \frac{\partial rmsnorm(γ)_{ij}}{\partial γ_{ij}}$
 </p>
 
 <p>
