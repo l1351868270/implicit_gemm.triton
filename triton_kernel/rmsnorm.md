@@ -227,12 +227,17 @@ $=0$
 
 情况三: $k = i, l = j$
 
+<p>
 $\frac {\partial rmsnorm(γ)_{kl}}{\partial γ_{ij}}$
+</p>
 
+<p>
 $=\frac {\partial rmsnorm(γ)_{ij}}{\partial γ_{ij}}$
+</p>
 
+<p>
 $=(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{1}{2}}.x_{ij}$
-
+</p>
 
 # 链式法则
 
