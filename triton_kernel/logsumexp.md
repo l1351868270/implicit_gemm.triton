@@ -39,9 +39,11 @@ $= \frac {1}{\sum_{l} e^{x_{kl}}} . \frac{\partial \sum_{l} e^{x_{kl}}}{\partial
 
 $= \frac {1}{\sum_{l} e^{x_{il}}} . \frac{\partial \sum_{l} e^{x_{il}}}{\partial x_{ij}}$
 
-$= \frac {1}{\sum_{l} e^{x_{il}}} .  x_{ij}$
+$= \frac {1}{\sum_{l} e^{x_{il}}} .  e^{x_{ij}}$
 
-$= \frac {x_{ij}}{\sum_{l} e^{x_{il}}}$
+$= \frac {e^{x_{ij}}}{\sum_{l} e^{x_{il}}}$
+
+$= softmax(x_{ij})$
 
 ## 链式法则
 
@@ -58,7 +60,7 @@ $=\frac{\partial f(logsumexp(X))}{\partial logsumexp(x)_i} . \frac{\partial logs
 </p>
 
 <p>
-$=\frac{\partial f(logsumexp(X))}{\partial logsumexp(x)_i} . \frac {x_{ij}}{\sum_{l} e^{x_{il}}}$
+$=\frac{\partial f(logsumexp(X))}{\partial logsumexp(x)_i} . \frac {e^{x_{ij}}}{\sum_{l} e^{x_{il}}}$
 </p>
   
 $=df_i . softmax(x_{ij})$
