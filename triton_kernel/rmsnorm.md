@@ -318,13 +318,16 @@ $=\sum_{k=0}^{M-1}\sum_{l=0}^{N-1}(\frac{\partial f(rmsnorm(γ))}{\partial rmsno
 $=\sum_{k=0}^{M-1}\sum_{l=0}^{N-1}df_{kl} . \frac{\partial rmsnorm(γ)_{kl}}{\partial γ_{j}}$
 </p>
 
-<p>
-$=df_{ij} . \frac{\partial rmsnorm(γ)_{ij}}{\partial γ_{j}}$
-</p>
 
 <p>
-$=df_{ij} . (\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{1}{2}}.x_{ij}$
+$=\sum_{k=0}^{M-1}df_{kj} . \frac{\partial rmsnorm(γ)_{kj}}{\partial γ_{j}}$
 </p>
+
+
+<p>
+$=\sum_{k=0}^{M-1}df_{kj} . (\frac{1}{N}\sum_{q=0}^{N-1}x_{kq}^2)^{-\frac{1}{2}}.x_{kj}$
+</p>
+
 
 # 参考
 https://pytorch.org/docs/stable/generated/torch.nn.RMSNorm.html
