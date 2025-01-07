@@ -306,6 +306,16 @@ $=df_{ij}.[-\frac{x_{ij}^2}{N}(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{3}{2
 $=df_{ij}.(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{1}{2}}.γ_{ij} - \frac{x_{ij}}{N}\sum_{l}(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{3}{2}}.df_{il}.x_{il}.γ_{il} $
 </p>
 
+<p>
+$=df_{ij}.rrms(x)_i.γ_{ij} - \frac{x_{ij}}{N}\sum_{l}rrsm(x)_i^{3}.df_{il}.x_{il}.γ_{il} $
+</p>
+
+### 矩阵形式
+
+$\frac{\partial f(rmsnorm(X))}{\partial X}$
+
+$=$
+
 ## γ链式法则
 
 ### 元素形式
