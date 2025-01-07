@@ -1,53 +1,65 @@
 # forward
 $C \in {R}^{M \times N}, A \in {R}^{M \times K}, B \in {R}^{K \times N}$
 
-计算 $C = AB$
+$C = AB$
 
 $c_{pq} = \sum_{k=0}^{K-1} a_{pk}b_{kq}$
 
 # 求导
-通用求导公式
+## 通用求导
 
 $\frac{\partial ax}{\partial x} = a$
 
-$c_{pq}$代入求导
+## A求导
+###  $i \neq p$ 
 
-$\frac{\partial \sum_{k=0}^{K-1} a_{pk}b_{kq}}{\partial b_{ij}}$
+$\frac{\partial c_{pq}}{\partial a_{ij}} = 0$
 
-### 分三种情况
-情况一:  $j \neq q$ , 由于 $c_{pq}$ 只和 $B$ 的第 $q$ 列有关，所以
+### $i = p$
+
+$\frac{\partial c_{pq}}{\partial a_{ij}}=\frac{\partial c_{iq}}{\partial a_{ij}} = b_{jq}$
+
+## B求导
+###  $j \neq q$ 
 
 $\frac{\partial c_{pq}}{\partial b_{ij}} = 0$
 
-情况二: $j = q$ ,
+### $j = q$
 
-$\frac{\partial c_{pq}}{\partial b_{ij}}$
+$\frac{\partial c_{pq}}{\partial b_{ij}}=\frac{\partial c_{pj}}{\partial b_{ij}} = a_{pi}$
 
-$\frac{\partial c_{pj}}{\partial b_{ij}} = a_{pi}$
+# 链式法则
 
-## 链式法则
+## A链式法则
+
+### 元素形式
+
+$\frac{\partial f(AB)}{\partial a_{ij}}$
+
+$=\sum_{p=0}^{N-1} \sum_{q=0}^{N-1} df_{pq} . \frac{\partial c_{pq}}{\partial a_{ij}}$
+
+$=\sum_{q=0}^{N-1} df_{iq} . \frac{\partial c_{iq}}{\partial a_{ij}}$
+
+$=\sum_{p=0}^{N-1} df_{iq} . b_{jq}$
+
+### 矩阵形式
+
+$\frac{\partial f(AB)}{\partial A} = \frac{\partial f(AB)}{\partial C}.B^T$
+
+## B链式法则
+
+### 元素形式
+
 $\frac{\partial f(AB)}{\partial b_{ij}}$
 
 $=\sum_{p=0}^{N-1} \sum_{q=0}^{N-1} \frac{\partial f(AB)}{\partial c_{pq}} . \frac{\partial c_{pq}}{\partial b_{ij}}$
 
-$=\sum_{p=0}^{N-1} \frac{\partial f(AB)}{\partial c_{pj}} . \frac{\partial c_{pj}}{\partial b_{ij}}$
+$=\sum_{p=0}^{N-1} \sum_{q=0}^{N-1} df_{pq} . \frac{\partial c_{pq}}{\partial b_{ij}}$
 
-$=\sum_{p=0}^{N-1} \frac{\partial f(AB)}{\partial c_{pj}} . a_{pi}$
+$=\sum_{p=0}^{N-1} df_{pj} . \frac{\partial c_{pj}}{\partial b_{ij}}$
 
-所以
+$=\sum_{p=0}^{N-1} df_{pj} . a_{pi}$
+
+### 矩阵形式
 
 $\frac{\partial f(AB)}{\partial B} = A^T . \frac{\partial f(AB)}{\partial C}$ 
-
-同理
-
-$\frac{\partial f(AB)}{\partial a_{ij}}$
-
-$=\sum_{p=0}^{N-1} \sum_{q=0}^{N-1} \frac{\partial f(AB)}{\partial c_{pq}} . \frac{\partial c_{pq}}{\partial a_{ij}}$
-
-$=\sum_{q=0}^{N-1} \frac{\partial f(AB)}{\partial c_{iq}} . \frac{\partial c_{iq}}{\partial a_{ij}}$
-
-$=\sum_{p=0}^{N-1} \frac{\partial f(AB)}{\partial c_{iq}} . b_{jq}$
-
-所以
-
-$\frac{\partial f(AB)}{\partial A} = \frac{\partial f(AB)}{\partial C}.B^T$
