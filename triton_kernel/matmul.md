@@ -36,6 +36,8 @@ $\frac{\partial c_{pq}}{\partial b_{ij}}=\frac{\partial c_{pj}}{\partial b_{ij}}
 
 $\frac{\partial f(AB)}{\partial a_{ij}}$
 
+$=\sum_{p=0}^{N-1} \sum_{q=0}^{N-1} \frac{\partial f(AB)}{\partial c_{pq}} . \frac{\partial c_{pq}}{\partial a_{ij}}$
+
 $=\sum_{p=0}^{N-1} \sum_{q=0}^{N-1} df_{pq} . \frac{\partial c_{pq}}{\partial a_{ij}}$
 
 $=\sum_{q=0}^{N-1} df_{iq} . \frac{\partial c_{iq}}{\partial a_{ij}}$
