@@ -314,7 +314,7 @@ $=df_{ij}.rrms(x)_i.γ_{ij} - \frac{x_{ij}}{N}\sum_{l}rrsm(x)_i^{3}.df_{il}.x_{i
 
 $\frac{\partial f(rmsnorm(X))}{\partial X}$
 
-$=$
+$=df.rrms(X).γ-\frac{X}{N}.sum(rrms(X).df.X.γ, dim=-1, keepdim=True)$
 
 ## γ链式法则
 
