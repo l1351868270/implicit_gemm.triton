@@ -293,7 +293,7 @@ $=df_{ij}.(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{1}{2}}.γ_{j} - \frac{x_
 </p>
 
 <p>
-$=df_{ij}.rrms(x)_i.γ_{j} - \frac{x_{ij}}{N}\sum_{l}rrsm(x)_i^{3}.df_{il}.x_{il}.γ_{l} $
+$=df_{ij}.rrms(x)_i.γ_{j} - \frac{x_{ij}}{N}\sum_{l}rrms(x)_i^{3}.df_{il}.x_{il}.γ_{l} $
 </p>
 
 ### 矩阵形式
@@ -328,6 +328,17 @@ $=\sum_{k=0}^{M-1}df_{kj} . \frac{\partial rmsnorm(γ)_{kj}}{\partial γ_{j}}$
 $=\sum_{k=0}^{M-1}df_{kj} . (\frac{1}{N}\sum_{q=0}^{N-1}x_{kq}^2)^{-\frac{1}{2}}.x_{kj}$
 </p>
 
+<p>
+$=\sum_{k=0}^{M-1}df_{kj} . rrms(x)_{k} .x_{kj}$
+</p>
+
+### 矩阵形式
+
+$\frac{\partial f(rmsnorm(γ))}{\partial γ}$
+
+<p>
+$=sum(df . rrms(X) . X, dim=0)$
+</p>
 
 # 参考
 https://pytorch.org/docs/stable/generated/torch.nn.RMSNorm.html
