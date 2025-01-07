@@ -36,18 +36,22 @@ $=\frac{1}{M \times N}2(B_{ij}-A_{ij})$
 
 ## A链式法则
 
+### 元素形式
+
 $\frac{\partial f(MSE(A, B))}{\partial A_{ij}}$
 
 $=\frac{\partial f(MSE(A, B))}{\partial MSE(A, B)} . \frac{\partial MSE(A, B)}{\partial A_{ij}}$
 
 $=df.\frac{1}{M \times N}2(A_{ij} - B_{ij})$
 
-矩阵形式:
+### 矩阵形式
 
 $=2.df.\frac{1}{M \times N}(A - B)$
 
 
 ## B链式法则
+
+### 元素形式
 
 $\frac{\partial f(MSE(A, B))}{\partial B_{ij}}$
 
@@ -55,7 +59,7 @@ $=\frac{\partial f(MSE(A, B))}{\partial MSE(A, B)} . \frac{\partial MSE(A, B)}{\
 
 $=df.\frac{1}{M \times N}2(B_{ij}-A_{ij})$
 
-矩阵形式:
+### 矩阵形式
 
 $=2.df.\frac{1}{M \times N}(B - A)$
 
