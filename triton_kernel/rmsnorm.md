@@ -76,7 +76,7 @@ $=\frac{x_{ij}}{N\sqrt{\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2}}$
 </p>
 
 <p>
-$=\frac{x_{ij}}{nrms(x)_i}$
+$=\frac{x_{ij}}{N.rms(x)_i}$
 </p>
 
 ### ${rmsnorm(X)}$ 求导
