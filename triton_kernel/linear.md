@@ -126,13 +126,15 @@ $=\sum_{q=0}^{outfs-1}df_{iq}.\frac{\partial linear(input)_{iq}}{\partial input_
 
 $=\sum_{q=0}^{outfs-1}df_{iq}.weight_{qj}$
 
-矩阵形式
+### 矩阵形式
 
 $\frac{\partial f(input)}{\partial input}$
 
 $=df@weight$
 
 ## weight链式法则
+
+### 元素形式
 
 <p>
 $\frac{\partial f(linear(weight)_{kl})}{\partial weight_{ij}}$
@@ -152,13 +154,15 @@ $=\sum_{p=0}^{M-1}df_{pi}.\frac{\partial linear(weight)_{pi}}{\partial weight_{i
 
 $=\sum_{p=0}^{M-1}df_{pi}.input_{pj}$
 
-矩阵形式
+### 矩阵形式
 
 $\frac{\partial f(weight)}{\partial weight}$
 
 $=df^{T}@intput$
 
 ## bias链式法则
+
+### 元素形式
 
 <p>
 $\frac{\partial f(linear(bias)_{kl})}{\partial bias_{j}}$
@@ -178,7 +182,7 @@ $=\sum_{p=0}^{M-1}df_{pj}.\frac{\partial linear(bias)_{j}}{\partial bias_{j}}$
 
 $=\sum_{p=0}^{M-1}df_{pj}$
 
-矩阵形式
+### 矩阵形式
 
 $\frac{\partial f(bias)}{\partial bias} = \sum_{p=0}^{M-1} df_{p,j \in (outfs-1)}$
 
@@ -186,7 +190,7 @@ $\frac{\partial f(bias)}{\partial bias} = \sum_{p=0}^{M-1} df_{p,j \in (outfs-1)
 
 $A \in {R}^{M \times K}$
 
-$B \in {R}^{B \times N}$
+$B \in {R}^{K \times N}$
 
 $C = AB$
 
