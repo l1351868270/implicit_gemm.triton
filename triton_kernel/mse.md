@@ -36,7 +36,7 @@ $=\frac{1}{M \times N}2(B_{ij}-A_{ij})$
 
 ## A链式法则
 
-$\frac{\partial f(MSE(A, B))}{\partial B_{ij}}$
+$\frac{\partial f(MSE(A, B))}{\partial A_{ij}}$
 
 $=\frac{\partial f(MSE(A, B))}{\partial MSE(A, B)} . \frac{\partial MSE(A, B)}{\partial A_{ij}}$
 
