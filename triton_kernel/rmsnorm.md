@@ -199,41 +199,27 @@ $=-\frac{x_{ij}^2}{N}(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{3}{2}}.γ_{ij
 ## γ求导
 
 <p>
-$\frac {\partial rmsnorm(γ)_{kl}}{\partial γ_{ij}}$
+$\frac {\partial rmsnorm(γ)_{kl}}{\partial γ_{j}}$
 </p>
 
-### $k \neq i$
+### $l \neq j$
 
 <p>
-$\frac {\partial rmsnorm(γ)_{kl}}{\partial γ_{ij}} = 0$
+$\frac {\partial rmsnorm(γ)_{kl}}{\partial γ_{j}} = 0$
 </p>
 
-### $k = i, l \neq j$
+### $l = j$
 
 <p>
-$\frac {\partial rmsnorm(γ)_{kl}}{\partial γ_{ij}}$
-</p>
-
-<p>
-$=\frac {\partial rmsnorm(γ)_{il}}{\partial γ_{ij}}$
+$\frac {\partial rmsnorm(γ)_{kl}}{\partial γ_{j}}$
 </p>
 
 <p>
-$=0$
-</p>
-
-### $k = i, l = j$
-
-<p>
-$\frac {\partial rmsnorm(γ)_{kl}}{\partial γ_{ij}}$
+$=\frac {\partial rmsnorm(γ)_{kj}}{\partial γ_{j}}$
 </p>
 
 <p>
-$=\frac {\partial rmsnorm(γ)_{ij}}{\partial γ_{ij}}$
-</p>
-
-<p>
-$=(\frac{1}{N}\sum_{q=0}^{N-1}x_{iq}^2)^{-\frac{1}{2}}.x_{ij}$
+$=(\frac{1}{N}\sum_{q=0}^{N-1}x_{kq}^2)^{-\frac{1}{2}}.x_{kj}$
 </p>
 
 # 链式法则
